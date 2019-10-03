@@ -2,11 +2,12 @@ version: '3.4'
 
 services:
   mongodb:
+    container_name: pds-backend-mongodb
     build:
       context: mongodb
     restart: always
-    volumes:
-      - $MONGODB_DATA_DIR:/data/db
+#    volumes:
+#      - $MONGODB_DATA_DIR:/data/db
     environment:
       MONGO_INITDB_ROOT_USERNAME: $MONGO_INITDB_ROOT_USERNAME
       MONGO_INITDB_ROOT_PASSWORD: $MONGO_INITDB_ROOT_PASSWORD
@@ -18,20 +19,25 @@ services:
       - 27018
       - 27019
 
-  backend:
-    container_name: backend
+  pds-backend:
+    container_name: pds-backend
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - $API_PORT:8080
     environment:
+      COMPOSE_PROJECT_NAME: $COMPOSE_PROJECT_NAME
+      MONGO_HOST: mongodb
+      MONGO_PORT: 27017
       MONGO_COLLECTION: $MONGO_COLLECTION
       MONGO_DATABASE: $MONGO_DATABASE
       MONGO_USERNAME: $MONGO_NON_ROOT_USERNAME
       MONGO_PASSWORD: $MONGO_NON_ROOT_PASSWORD
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      - redis
+      - mongodb
     
 
 

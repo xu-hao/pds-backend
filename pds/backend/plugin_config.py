@@ -2,6 +2,7 @@ import os
 import logging
 from pymongo import MongoClient
 from contextlib import contextmanager
+from bson.objectid import ObjectId
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -26,17 +27,17 @@ def get_plugin_configs(fil):
 
 def get_plugin_config(plugin_id):
     with plugin_db() as collection:
-        return next(collection.find({"_id": plugin_id}))
+        return next(collection.find({"_id": ObjectId(plugin_id)}))
 
 
 def get_plugin_ids(fil):
     with plugin_db() as collection:
-        return next(collection.find(fil, []))
+        return list(collection.find(fil, []))
 
 
 def add_plugin_configs(pc):
     with plugin_db() as collection:
-        return collection.insert_many(post).inserted_ids
+        return collection.insert_many(pc).inserted_ids
     
     
 def update_plugin_configs(fil, update):
