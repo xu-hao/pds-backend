@@ -8,7 +8,7 @@ services:
       context: .
       dockerfile: test/Dockerfile
     image: pds-backend-test:0.1.0
-    command: ["-s", "-v", "-x"] # , "-k", "test_add_plugin_config_api"]
+    command: ["-s"] # , "-v", "-x", "-k", "test_add_plugin_config_api"]
     environment:
       COMPOSE_PROJECT_NAME: $COMPOSE_PROJECT_NAME
       MONGO_HOST: mongodb
