@@ -11,6 +11,7 @@ from pds.backend import plugin, plugin_config
 from contextlib import contextmanager
 import tempfile
 from bson.objectid import ObjectId
+import api
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -132,5 +133,115 @@ def test_run_plugin_container():
             plugin.stop_container(pc)
             plugin.remove_container(pc)
             plugin_config.delete_plugin_configs(fil)
+
+
+def test_run_plugin_container_api():
+    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_nane:
+        os.chmod(temp_dir_nane, 0o755)
+        s = "pds"
+        with open(os.path.join(temp_dir_nane, "index.json"), "w+") as f:
+            f.write(json.dumps(s))
+
+        name = "nginx10"
+        pc = {
+            "image": "nginx:1.17.4",
+            "parameters": None,
+            "name": name,
+            "port": 80,
+            "mounts": [
+                {
+                    "target": "/usr/share/nginx/html",
+                    "source": temp_dir_nane,
+                    "type": "bind",
+                    "read_only": True
+                }
+            ]
+
+        }
+        fil = {"name": name}
+
+        try:
+            plugin_config.add_plugin_configs([pc])
+            ps = plugin_config.get_plugin_configs({"name": name})
+            assert len(ps) == 1
+            pc = ps[0]
+
+            plugin_id = pc["_id"]
+
+            requests.put("http://pds-backend:8080/v1/admin/plugin/{plugin_id}/container".format(plugin_id=plugin_id))
+
+            resp = requests.get("http://pds-backend:8080/v1/plugin/{plugin_id}/index.json".format(plugin_id=plugin_id))
+
+            assert resp.status_code == 200
+            assert resp.json() == s
+        finally:
+            plugin.stop_container(pc)
+            plugin.remove_container(pc)
+            plugin_config.delete_plugin_configs(fil)
+
+
+def test_run_plugin_containers_api():
+    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_nane:
+        os.chmod(temp_dir_nane, 0o755)
+        s = "pds"
+        with open(os.path.join(temp_dir_nane, "index.json"), "w+") as f:
+            f.write(json.dumps(s))
+
+        name = "nginx10"
+        name2 = "nginx20"
+        pc = {
+            "image": "nginx:1.17.4",
+            "parameters": None,
+            "name": name,
+            "port": 80,
+            "mounts": [
+                {
+                    "target": "/usr/share/nginx/html",
+                    "source": temp_dir_nane,
+                    "type": "bind",
+                    "read_only": True
+                }
+            ]
+
+        }
+        pc2 = {
+            "image": "nginx:1.17.4",
+            "parameters": None,
+            "name": name2,
+            "port": 80,
+            "mounts": [
+                {
+                    "target": "/usr/share/nginx/html",
+                    "source": temp_dir_nane,
+                    "type": "bind",
+                    "read_only": True
+                }
+            ]
+
+        }
+        fil = {}
+
+        try:
+            plugin_config.add_plugin_configs([pc, pc2])
+            ps = plugin_config.get_plugin_configs({})
+            assert len(ps) == 2
+            pc = ps[0]
+
+            plugin_id = pc["_id"]
+            plugin_id2 = pc["_id"]
+
+            requests.put("http://pds-backend:8080/v1/admin/container")
+
+            resp = requests.get("http://pds-backend:8080/v1/plugin/{plugin_id}/index.json".format(plugin_id=plugin_id))
+
+            assert resp.status_code == 200
+            assert resp.json() == s
+            resp2 = requests.get("http://pds-backend:8080/v1/plugin/{plugin_id}/index.json".format(plugin_id=plugin_id2))
+
+            assert resp2.status_code == 200
+            assert resp2.json() == s
+        finally:
+            api.delete_containers()
+            plugin_config.delete_plugin_configs({})
 
 
