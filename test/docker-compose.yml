@@ -8,7 +8,7 @@ services:
       context: .
       dockerfile: test/Dockerfile
     image: pds-backend-test:0.1.0
-    command: ["-s", "-v"] # , "-x", "-k", "test_get_plugin_configs_api_name_regex"]
+    command: ["-s"] # , "-v", "-x", "-k", "test_run_container_get_echo"]
     environment:
       COMPOSE_PROJECT_NAME: $COMPOSE_PROJECT_NAME
       MONGO_HOST: mongodb
@@ -23,6 +23,16 @@ services:
     depends_on:
       - mongodb
       - pds-backend
+
+  pds-backend-test-flask-echo-server:
+    container_name: pds-backend-test-flask-echo-server
+    build:
+      context: test/flask-echo-server
+      dockerfile: Dockerfile
+    image: pds-backend-test-flask-echo-server:0.1.0
+    environment:
+      HOST: 0.0.0.0
+      PORT: 80
     
 
 

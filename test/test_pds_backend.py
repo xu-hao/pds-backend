@@ -69,10 +69,35 @@ def pc2(temp_dir_name):
     }
 
 
+echo_pc = {
+            "image": "pds-backend-test-flask-echo-server:0.1.0",
+            "environment": {},
+            "name": "echo",
+            "port": 80,
+            "environment": {
+                "HOST": "0.0.0.0",
+                "PORT": "80"
+            },
+            "mounts": []
+        }
+
+echo_pc2 = {
+            "image": "pds-backend-test-flask-echo-server:0.1.0",
+            "name": "echo",
+            "port": 80,
+            "environment": {
+                "HOST": "0.0.0.0",
+                "PORT": "80",
+                "VAR": "data"
+            },
+            "mounts": []
+        }
+
+
 fil = {"name": name}
 
 
-def test_run_container():
+def test_run_container_get():
     with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_name:
         os.chmod(temp_dir_name, 0o755)
         s = "pds"
@@ -92,6 +117,63 @@ def test_run_container():
         finally:
             plugin.stop_container(apc)
             plugin.remove_container(apc)
+
+
+def test_run_container_get_echo():
+    try:
+        apc = echo_pc
+
+        plugin.run_container(apc)
+
+        container_name = apc["name"]
+
+        time.sleep(10)
+        resp = requests.get("http://{host}/".format(host=container_name))
+
+        assert resp.status_code == 200
+        assert resp.json()["method"] == "GET"
+
+    finally:
+        plugin.stop_container(apc)
+        plugin.remove_container(apc)
+
+def test_run_container_post_echo():
+    s = "pds"
+    try:
+        apc = echo_pc
+
+        plugin.run_container(apc)
+
+        container_name = apc["name"]
+
+        time.sleep(10)
+        resp = requests.post("http://{host}/".format(host=container_name), headers={"Content-Type": "application/json"}, json=s)
+
+        assert resp.status_code == 200
+        assert resp.json()["data"] == json.dumps(s)
+        assert resp.json()["method"] == "POST"
+    finally:
+        plugin.stop_container(apc)
+        plugin.remove_container(apc)
+
+
+def test_run_container_environment_post_echo():
+    s = "pds"
+    try:
+        apc = echo_pc2
+        plugin.run_container(apc)
+
+        container_name = apc["name"]
+
+        time.sleep(10)
+        resp = requests.post("http://{host}/".format(host=container_name), headers={"Content-Type": "application/json"}, json=s)
+
+        assert resp.status_code == 200
+        assert resp.json()["data"] == json.dumps(s)
+        assert resp.json()["method"] == "POST"
+    finally:
+        plugin.stop_container(apc)
+        plugin.remove_container(apc)
 
 
 def test_add_plugin_config():
