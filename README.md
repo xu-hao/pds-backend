@@ -1,7 +1,7 @@
 # pds-backend
 
 
-## job submission format
+## plugin configuration format
 ```
 {
   "image": docker image,
