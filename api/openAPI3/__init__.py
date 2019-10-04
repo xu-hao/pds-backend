@@ -58,13 +58,17 @@ def get_plugin_ids(name=None, name_regex=None):
     return ids
 
 
-def add_plugin_config(pc):
-    pc = plugin_config.add_plugin_configs([pc])
-    return pc
+def add_plugin_configs(body):
+    pc = plugin_config.add_plugin_configs(body)
+    return len(pc)
 
 
-def delete_plugin_config(name):
-    plugin_config.delete_plugin_configs([name])
+def delete_plugin_config(name=None, name_regex=None):
+    return delete_plugin_configs(name=name, name_regex=name_regex)
+
+
+def delete_plugin_configs(name=None, name_regex=None):
+    return plugin_config.delete_plugin_configs(fil(name, name_regex))
 
 
 def update_plugin_config(name, body):

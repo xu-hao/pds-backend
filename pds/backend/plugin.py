@@ -23,10 +23,6 @@ def remove_plugins(pcs):
         remove_container(pc)
 
 
-# def container_name(pc):
-#     return "plugin_config_" + pc["_id"]
-
-
 def get_container(pc):
     client = docker.from_env()
     ret = client.containers.get(pc["name"])
@@ -39,10 +35,10 @@ def network():
 
 def run_container(pc):
     client = docker.from_env()
-    volumes = list(map(lambda l: Mount(l["target"], l["source"], type=l["type"], read_only=l["read_only"]), pc["mounts"]))
+    volumes = list(map(lambda l: Mount(l["target"], l["source"], type=l["type"], read_only=l["read_only"]), pc.get("mounts", [])))
     logging.info("volumes = {0}".format(volumes))
     print(client.containers)
-    ret = client.containers.run(pc["image"], environment=pc["environment"], network=network(), mounts=volumes, detach=True, stdout=True, stderr=True, name=pc["name"], hostname=pc["name"])
+    ret = client.containers.run(pc["image"], environment=pc.get("environment", {}), network=network(), mounts=volumes, detach=True, stdout=True, stderr=True, name=pc["name"], hostname=pc["name"])
     logging.info("ret = {0}".format(ret))
     return ret
 

@@ -49,8 +49,10 @@ def update_plugin_configs(fil, update):
         return collection.update_many(fil, update).modified_count
 
 
-def replace_plugin_configs(name, update):
+def replace_plugin_config(name, update):
     with plugin_db() as collection:
+        if name != update["name"] and len(get_plugin_configs({"name": update["name"]})) > 0:
+            raise RuntimeError("plugin name \"{name}\" already exists in database".format(name=update["name"]))
         return collection.replace_one({"name": name}, update).modified_count
 
 

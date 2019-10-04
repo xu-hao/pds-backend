@@ -70,32 +70,33 @@ def pc2(temp_dir_name):
 
 
 echo_pc = {
-            "image": "pds-backend-test-flask-echo-server:0.1.0",
-            "environment": {},
-            "name": "echo",
-            "port": 80,
-            "environment": {
-                "HOST": "0.0.0.0",
-                "PORT": "80"
-            },
-            "mounts": []
-        }
+    "image": "pds-backend-test-flask-echo-server:0.1.0",
+    "environment": {},
+    "name": "echo",
+    "port": 80,
+    "environment": {
+        "HOST": "0.0.0.0",
+        "PORT": "80"
+    },
+    "mounts": []
+}
 
 echo_pc2 = {
-            "image": "pds-backend-test-flask-echo-server:0.1.0",
-            "name": "echo",
-            "port": 80,
-            "environment": {
-                "HOST": "0.0.0.0",
-                "PORT": "80",
-                "VAR": "data"
-            },
-            "mounts": []
-        }
+    "image": "pds-backend-test-flask-echo-server:0.1.0",
+    "name": "echo",
+    "port": 80,
+    "environment": {
+        "HOST": "0.0.0.0",
+        "PORT": "80",
+        "VAR": "data"
+    },
+    "mounts": []
+}
 
 
 fil = {"name": name}
 
+fil2 = {"name": name2}
 
 def test_run_container_get():
     with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_name:
@@ -136,6 +137,7 @@ def test_run_container_get_echo():
     finally:
         plugin.stop_container(apc)
         plugin.remove_container(apc)
+
 
 def test_run_container_post_echo():
     s = "pds"
@@ -196,6 +198,156 @@ def test_add_plugin_config2():
         plugin_config.delete_plugin_configs({})
 
 
+def test_update_plugin_config():
+    try:
+        apc = pc("/tmp")
+        apc2 = pc2("/tmp")
+        plugin_config.add_plugin_configs([apc])
+        ps = plugin_config.get_plugin_configs({})
+        assert len(ps) == 1
+        ps = plugin_config.get_plugin_configs(fil)
+        assert len(ps) == 1
+        plugin_config.replace_plugin_config(name, apc2)
+        ps = plugin_config.get_plugin_configs({})
+        assert len(ps) == 1
+        ps = plugin_config.get_plugin_configs(fil)
+        assert len(ps) == 0
+        ps = plugin_config.get_plugin_configs(fil2)
+        assert len(ps) == 1
+    finally:
+        plugin_config.delete_plugin_configs({})
+
+
+def test_delete_plugin_config():
+    try:
+        apc = pc("/tmp")
+        plugin_config.add_plugin_configs([apc])
+        ps = plugin_config.get_plugin_configs({})
+        assert len(ps) == 1
+        ps = plugin_config.get_plugin_configs(fil)
+        assert len(ps) == 1
+        plugin_config.delete_plugin_config(name)
+        ps = plugin_config.get_plugin_configs({})
+        assert len(ps) == 0
+        ps = plugin_config.get_plugin_configs(fil)
+        assert len(ps) == 0
+    finally:
+        plugin_config.delete_plugin_configs({})
+
+
+def test_delete_plugin_configs_name_regex():
+    try:
+        apc = pc("/tmp")
+        apc2 = pc2("/tmp")
+        plugin_config.add_plugin_configs([apc, apc2])
+        ps = plugin_config.get_plugin_configs({})
+        assert len(ps) == 2
+        ps = plugin_config.get_plugin_configs(fil)
+        assert len(ps) == 1
+        plugin_config.delete_plugin_configs({"name": {"$regex": "nginx.*"}})
+        ps = plugin_config.get_plugin_configs({})
+        assert len(ps) == 0
+        ps = plugin_config.get_plugin_configs(fil)
+        assert len(ps) == 0
+    finally:
+        plugin_config.delete_plugin_configs({})
+
+
+def test_add_plugin_config_api():
+    try:
+        apc = pc("/tmp")
+        resp = requests.put("http://pds-backend:8080/v1/admin/plugin", headers={"Content-Type": "application/json"}, json=[apc])
+        assert resp.status_code == 200
+        ps = plugin_config.get_plugin_configs({})
+        assert len(ps) == 1
+        ps = plugin_config.get_plugin_configs(fil)
+        assert len(ps) == 1
+    finally:
+        plugin_config.delete_plugin_configs({})
+
+
+def test_update_plugin_config_api():
+    try:
+        apc = pc("/tmp")
+        apc2 = pc2("/tmp")
+        resp = requests.put("http://pds-backend:8080/v1/admin/plugin", headers={"Content-Type": "application/json"}, json=[apc])
+        assert resp.status_code == 200
+        ps = plugin_config.get_plugin_configs({})
+        assert len(ps) == 1
+        ps = plugin_config.get_plugin_configs(fil)
+        assert len(ps) == 1
+        resp = requests.post("http://pds-backend:8080/v1/admin/plugin/{name}".format(name=name), headers={"Content-Type": "application/json"}, json=apc2)
+        assert resp.status_code == 200
+        ps = plugin_config.get_plugin_configs({})
+        assert len(ps) == 1
+        ps = plugin_config.get_plugin_configs(fil)
+        assert len(ps) == 0
+        ps = plugin_config.get_plugin_configs(fil2)
+        assert len(ps) == 1
+    finally:
+        plugin_config.delete_plugin_configs({})
+
+
+def test_delete_plugin_config_api():
+    try:
+        apc = pc("/tmp")
+        resp = requests.put("http://pds-backend:8080/v1/admin/plugin", headers={"Content-Type": "application/json"}, json=[apc])
+        assert resp.status_code == 200
+        ps = plugin_config.get_plugin_configs({})
+        assert len(ps) == 1
+        ps = plugin_config.get_plugin_configs(fil)
+        assert len(ps) == 1
+        resp = requests.delete("http://pds-backend:8080/v1/admin/plugin/{name}".format(name=name))
+        assert resp.status_code == 200
+        ps = plugin_config.get_plugin_configs({})
+        assert len(ps) == 0
+        ps = plugin_config.get_plugin_configs(fil)
+        assert len(ps) == 0
+    finally:
+        plugin_config.delete_plugin_configs({})
+
+
+def test_delete_plugin_configs_api_name():
+    try:
+        apc = pc("/tmp")
+        resp = requests.put("http://pds-backend:8080/v1/admin/plugin", headers={"Content-Type": "application/json"}, json=[apc])
+        assert resp.status_code == 200
+        ps = plugin_config.get_plugin_configs({})
+        assert len(ps) == 1
+        ps = plugin_config.get_plugin_configs(fil)
+        assert len(ps) == 1
+        resp = requests.delete("http://pds-backend:8080/v1/admin/plugin?name={name}".format(name=name))
+        assert resp.status_code == 200
+        ps = plugin_config.get_plugin_configs({})
+        assert len(ps) == 0
+        ps = plugin_config.get_plugin_configs(fil)
+        assert len(ps) == 0
+    finally:
+        plugin_config.delete_plugin_configs({})
+
+
+def test_delete_plugin_configs_api_name_regex():
+    try:
+        apc = pc("/tmp")
+        apc2 = pc2("/tmp")
+        resp = requests.put("http://pds-backend:8080/v1/admin/plugin", headers={"Content-Type": "application/json"}, json=[apc])
+        assert resp.status_code == 200
+        resp = requests.put("http://pds-backend:8080/v1/admin/plugin", headers={"Content-Type": "application/json"}, json=[apc2])
+        assert resp.status_code == 200
+        ps = plugin_config.get_plugin_configs({})
+        assert len(ps) == 2
+        ps = plugin_config.get_plugin_configs(fil)
+        assert len(ps) == 1
+        resp = requests.delete("http://pds-backend:8080/v1/admin/plugin?name_regex=nginx.*")
+        assert resp.status_code == 200
+        ps = plugin_config.get_plugin_configs({})
+        assert len(ps) == 0
+        ps = plugin_config.get_plugin_configs(fil)
+        assert len(ps) == 0
+    finally:
+        plugin_config.delete_plugin_configs({})
+
+
 def test_run_plugin_container():
     with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_name:
         os.chmod(temp_dir_name, 0o755)
@@ -234,7 +386,8 @@ def test_run_plugin_container_api():
             assert len(ps) == 1
             apc = ps[0]
 
-            requests.put("http://pds-backend:8080/v1/admin/plugin/{name}/container".format(name=name))
+            resp = requests.put("http://pds-backend:8080/v1/admin/plugin/{name}/container".format(name=name))
+            assert resp.status_code == 200
 
             resp = requests.get("http://pds-backend:8080/v1/plugin/{name}/index.json".format(name=name))
 
@@ -260,7 +413,8 @@ def test_get_plugin_config_api():
             apc = ps[0]
             apc["_id"] = str(apc["_id"])
 
-            requests.put("http://pds-backend:8080/v1/admin/plugin/{name}/container".format(name=name))
+            resp = requests.put("http://pds-backend:8080/v1/admin/plugin/{name}/container".format(name=name))
+            assert resp.status_code == 200
 
             resp = requests.get("http://pds-backend:8080/v1/admin/plugin/{name}".format(name=name))
 
@@ -358,7 +512,8 @@ def test_get_plugin_container_api():
             assert len(ps) == 1
             apc = ps[0]
 
-            requests.put("http://pds-backend:8080/v1/admin/plugin/{name}/container".format(name=name))
+            resp = requests.put("http://pds-backend:8080/v1/admin/plugin/{name}/container".format(name=name))
+            assert resp.status_code == 200
 
             resp = requests.get("http://pds-backend:8080/v1/admin/plugin/{name}/container".format(name=name))
 
@@ -384,7 +539,8 @@ def test_run_plugin_containers_api():
             assert len(ps) == 2
             apc = ps[0]
 
-            requests.put("http://pds-backend:8080/v1/admin/container")
+            resp = requests.put("http://pds-backend:8080/v1/admin/container")
+            assert resp.status_code == 200
 
             resp = requests.get("http://pds-backend:8080/v1/plugin/{name}/index.json".format(name=name))
 
@@ -414,7 +570,8 @@ def test_get_plugin_containers_api():
             assert len(ps) == 2
             apc = ps[0]
 
-            requests.put("http://pds-backend:8080/v1/admin/container")
+            resp = requests.put("http://pds-backend:8080/v1/admin/container")
+            assert resp.status_code == 200
 
             resp = requests.get("http://pds-backend:8080/v1/admin/container")
 
