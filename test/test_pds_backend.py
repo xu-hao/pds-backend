@@ -12,6 +12,7 @@ from contextlib import contextmanager
 import tempfile
 from bson.objectid import ObjectId
 import api
+from debug.utils import bag_equal
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -28,45 +29,12 @@ def test_log(request):
     print("Test '{}' COMPLETED".format(request.node.nodeid))
 
 
-def test_run_container():
-    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_nane:
-        os.chmod(temp_dir_nane, 0o755)
-        s = "pds"
-        with open(os.path.join(temp_dir_nane, "index.json"), "w+") as f:
-            f.write(json.dumps(s))
-
-        pc = {
-            "image": "nginx:1.17.4",
-            "name": "nginx10",
-            "parameters": None,
-            "mounts": [
-                {
-                    "target": "/usr/share/nginx/html",
-                    "source": temp_dir_nane,
-                    "type": "bind",
-                    "read_only": True
-                }
-            ]
-
-        }
-
-        try:
-            plugin.run_container(pc)
-
-            container_name = pc["name"]
-
-            resp = requests.get("http://{host}/index.json".format(host=container_name))
-
-            assert resp.status_code == 200
-            assert resp.json() == s
-        finally:
-            plugin.stop_container(pc)
-            plugin.remove_container(pc)
+name = "nginx10"
+name2 = "nginx20"
 
 
-def test_add_plugin_config():
-    name = "nginx10"
-    pc = {
+def pc(temp_dir_name):
+    return {
         "image": "nginx:1.17.4",
         "parameters": None,
         "name": name,
@@ -74,169 +42,273 @@ def test_add_plugin_config():
         "mounts": [
             {
                 "target": "/usr/share/nginx/html",
-                "source": "/tmp",
+                "source": temp_dir_name,
                 "type": "bind",
                 "read_only": True
             }
         ]
-
+    
     }
-    fil = {"name": name}
 
+
+def pc2(temp_dir_name):
+    return {
+        "image": "nginx:1.17.4",
+        "parameters": None,
+        "name": name2,
+        "port": 80,
+        "mounts": [
+            {
+                "target": "/usr/share/nginx/html",
+                "source": temp_dir_name,
+                "type": "bind",
+                "read_only": True
+            }
+        ]
+    
+    }
+
+
+fil = {"name": name}
+
+
+def test_run_container():
+    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_name:
+        os.chmod(temp_dir_name, 0o755)
+        s = "pds"
+        with open(os.path.join(temp_dir_name, "index.json"), "w+") as f:
+            f.write(json.dumps(s))
+
+        try:
+            apc = pc(temp_dir_name)
+            plugin.run_container(apc)
+
+            container_name = apc["name"]
+
+            resp = requests.get("http://{host}/index.json".format(host=container_name))
+
+            assert resp.status_code == 200
+            assert resp.json() == s
+        finally:
+            plugin.stop_container(apc)
+            plugin.remove_container(apc)
+
+
+def test_add_plugin_config():
     try:
-        plugin_config.add_plugin_configs([pc])
+        apc = pc("/tmp")
+        plugin_config.add_plugin_configs([apc])
         ps = plugin_config.get_plugin_configs(fil)
         assert len(ps) == 1
     finally:
-        plugin_config.delete_plugin_configs(fil)
+        plugin_config.delete_plugin_configs({})
+
+
+def test_add_plugin_config2():
+    try:
+        apc = pc("/tmp")
+        plugin_config.add_plugin_configs([apc])
+        with pytest.raises(Exception):
+            plugin_config.add_plugin_configs([apc])
+    finally:
+        plugin_config.delete_plugin_configs({})
 
 
 def test_run_plugin_container():
-    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_nane:
-        os.chmod(temp_dir_nane, 0o755)
+    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_name:
+        os.chmod(temp_dir_name, 0o755)
         s = "pds"
-        with open(os.path.join(temp_dir_nane, "index.json"), "w+") as f:
+        with open(os.path.join(temp_dir_name, "index.json"), "w+") as f:
             f.write(json.dumps(s))
 
-        name = "nginx10"
-        pc = {
-            "image": "nginx:1.17.4",
-            "parameters": None,
-            "name": name,
-            "port": 80,
-            "mounts": [
-                {
-                    "target": "/usr/share/nginx/html",
-                    "source": temp_dir_nane,
-                    "type": "bind",
-                    "read_only": True
-                }
-            ]
-
-        }
-        fil = {"name": name}
-
         try:
-            plugin_config.add_plugin_configs([pc])
+            apc = pc(temp_dir_name)
+            plugin_config.add_plugin_configs([apc])
             ps = plugin_config.get_plugin_configs({"name": name})
             assert len(ps) == 1
-            pc = ps[0]
-            plugin.run_container(pc)
-
-            plugin_id = pc["_id"]
-
-            resp = requests.get("http://pds-backend:8080/v1/plugin/{plugin_id}/index.json".format(plugin_id=plugin_id))
-
+            apc = ps[0]
+            plugin.run_container(apc)
+        
+            resp = requests.get("http://pds-backend:8080/v1/plugin/{name}/index.json".format(name=name))
+        
             assert resp.status_code == 200
             assert resp.json() == s
         finally:
-            plugin.stop_container(pc)
-            plugin.remove_container(pc)
-            plugin_config.delete_plugin_configs(fil)
+            api.delete_containers()
+            plugin_config.delete_plugin_configs({})
 
 
 def test_run_plugin_container_api():
-    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_nane:
-        os.chmod(temp_dir_nane, 0o755)
+    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_name:
+        os.chmod(temp_dir_name, 0o755)
         s = "pds"
-        with open(os.path.join(temp_dir_nane, "index.json"), "w+") as f:
+        with open(os.path.join(temp_dir_name, "index.json"), "w+") as f:
             f.write(json.dumps(s))
 
-        name = "nginx10"
-        pc = {
-            "image": "nginx:1.17.4",
-            "parameters": None,
-            "name": name,
-            "port": 80,
-            "mounts": [
-                {
-                    "target": "/usr/share/nginx/html",
-                    "source": temp_dir_nane,
-                    "type": "bind",
-                    "read_only": True
-                }
-            ]
-
-        }
-        fil = {"name": name}
-
         try:
-            plugin_config.add_plugin_configs([pc])
+            apc = pc(temp_dir_name)
+            plugin_config.add_plugin_configs([apc])
             ps = plugin_config.get_plugin_configs({"name": name})
             assert len(ps) == 1
-            pc = ps[0]
+            apc = ps[0]
 
-            plugin_id = pc["_id"]
+            requests.put("http://pds-backend:8080/v1/admin/plugin/{name}/container".format(name=name))
 
-            requests.put("http://pds-backend:8080/v1/admin/plugin/{plugin_id}/container".format(plugin_id=plugin_id))
-
-            resp = requests.get("http://pds-backend:8080/v1/plugin/{plugin_id}/index.json".format(plugin_id=plugin_id))
+            resp = requests.get("http://pds-backend:8080/v1/plugin/{name}/index.json".format(name=name))
 
             assert resp.status_code == 200
             assert resp.json() == s
         finally:
-            plugin.stop_container(pc)
-            plugin.remove_container(pc)
-            plugin_config.delete_plugin_configs(fil)
+            api.delete_containers()
+            plugin_config.delete_plugin_configs({})
+
+
+def test_get_plugin_config_api():
+    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_name:
+        os.chmod(temp_dir_name, 0o755)
+        s = "pds"
+        with open(os.path.join(temp_dir_name, "index.json"), "w+") as f:
+            f.write(json.dumps(s))
+
+        try:
+            apc = pc(temp_dir_name)
+            plugin_config.add_plugin_configs([apc])
+            ps = plugin_config.get_plugin_configs({"name": name})
+            assert len(ps) == 1
+            apc = ps[0]
+            apc["_id"] = str(apc["_id"])
+
+            requests.put("http://pds-backend:8080/v1/admin/plugin/{name}/container".format(name=name))
+
+            resp = requests.get("http://pds-backend:8080/v1/admin/plugin/{name}".format(name=name))
+
+            assert resp.status_code == 200
+            assert resp.json() == apc
+        finally:
+            api.delete_containers()
+            plugin_config.delete_plugin_configs({})
+
+
+def test_get_plugin_configs_api_name():
+    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_name:
+        os.chmod(temp_dir_name, 0o755)
+        s = "pds"
+        with open(os.path.join(temp_dir_name, "index.json"), "w+") as f:
+            f.write(json.dumps(s))
+
+        try:
+            apc = pc(temp_dir_name)
+            plugin_config.add_plugin_configs([apc])
+            ps = plugin_config.get_plugin_configs({"name": name})
+            assert len(ps) == 1
+            apc = ps[0]
+            apc["_id"] = str(apc["_id"])
+
+            resp = requests.get("http://pds-backend:8080/v1/admin/plugin?name={name}".format(name=name))
+
+            assert resp.status_code == 200
+            assert resp.json() == [apc]
+        finally:
+            plugin_config.delete_plugin_configs({})
+
+
+
+def test_get_plugin_configs_name_regex():
+    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_name:
+        os.chmod(temp_dir_name, 0o755)
+        s = "pds"
+        with open(os.path.join(temp_dir_name, "index.json"), "w+") as f:
+            f.write(json.dumps(s))
+
+        try:
+            apc = pc(temp_dir_name)
+            apc2 = pc2(temp_dir_name)
+            plugin_config.add_plugin_configs([apc, apc2])
+            ps = plugin_config.get_plugin_configs({})
+            assert len(ps) == 2
+            for apc0 in ps:
+                apc0["_id"] = str(apc0["_id"])
+
+            ps2 = plugin_config.get_plugin_configs({"name": {"$regex": "nginx.*"}})
+            for a in ps2:
+                a["_id"] = str(a["_id"])
+
+            assert bag_equal(ps2, ps)
+        finally:
+            plugin_config.delete_plugin_configs({})
+
+
+def test_get_plugin_configs_api_name_regex():
+    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_name:
+        os.chmod(temp_dir_name, 0o755)
+        s = "pds"
+        with open(os.path.join(temp_dir_name, "index.json"), "w+") as f:
+            f.write(json.dumps(s))
+
+        try:
+            apc = pc(temp_dir_name)
+            apc2 = pc2(temp_dir_name)
+            plugin_config.add_plugin_configs([apc, apc2])
+            ps = plugin_config.get_plugin_configs({})
+            assert len(ps) == 2
+            for apc0 in ps:
+                apc0["_id"] = str(apc0["_id"])
+
+            resp = requests.get("http://pds-backend:8080/v1/admin/plugin?name_regex={name_regex}".format(name_regex="nginx.*"))
+
+            assert resp.status_code == 200
+            assert bag_equal(resp.json(), ps)
+        finally:
+            plugin_config.delete_plugin_configs({})
+
+
+def test_get_plugin_container_api():
+    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_name:
+        os.chmod(temp_dir_name, 0o755)
+        s = "pds"
+        with open(os.path.join(temp_dir_name, "index.json"), "w+") as f:
+            f.write(json.dumps(s))
+
+        try:
+            apc = pc(temp_dir_name)
+            plugin_config.add_plugin_configs([apc])
+            ps = plugin_config.get_plugin_configs({"name": name})
+            assert len(ps) == 1
+            apc = ps[0]
+
+            requests.put("http://pds-backend:8080/v1/admin/plugin/{name}/container".format(name=name))
+
+            resp = requests.get("http://pds-backend:8080/v1/admin/plugin/{name}/container".format(name=name))
+
+            assert resp.status_code == 200
+            assert resp.json() == {"status": "running"}
+        finally:
+            api.delete_containers()
+            plugin_config.delete_plugin_configs({})
 
 
 def test_run_plugin_containers_api():
-    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_nane:
-        os.chmod(temp_dir_nane, 0o755)
+    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_name:
+        os.chmod(temp_dir_name, 0o755)
         s = "pds"
-        with open(os.path.join(temp_dir_nane, "index.json"), "w+") as f:
+        with open(os.path.join(temp_dir_name, "index.json"), "w+") as f:
             f.write(json.dumps(s))
 
-        name = "nginx10"
-        name2 = "nginx20"
-        pc = {
-            "image": "nginx:1.17.4",
-            "parameters": None,
-            "name": name,
-            "port": 80,
-            "mounts": [
-                {
-                    "target": "/usr/share/nginx/html",
-                    "source": temp_dir_nane,
-                    "type": "bind",
-                    "read_only": True
-                }
-            ]
-
-        }
-        pc2 = {
-            "image": "nginx:1.17.4",
-            "parameters": None,
-            "name": name2,
-            "port": 80,
-            "mounts": [
-                {
-                    "target": "/usr/share/nginx/html",
-                    "source": temp_dir_nane,
-                    "type": "bind",
-                    "read_only": True
-                }
-            ]
-
-        }
-        fil = {}
-
         try:
-            plugin_config.add_plugin_configs([pc, pc2])
+            apc = pc(temp_dir_name)
+            apc2 = pc2(temp_dir_name)
+            plugin_config.add_plugin_configs([apc, apc2])
             ps = plugin_config.get_plugin_configs({})
             assert len(ps) == 2
-            pc = ps[0]
-
-            plugin_id = pc["_id"]
-            plugin_id2 = pc["_id"]
+            apc = ps[0]
 
             requests.put("http://pds-backend:8080/v1/admin/container")
 
-            resp = requests.get("http://pds-backend:8080/v1/plugin/{plugin_id}/index.json".format(plugin_id=plugin_id))
+            resp = requests.get("http://pds-backend:8080/v1/plugin/{name}/index.json".format(name=name))
 
             assert resp.status_code == 200
             assert resp.json() == s
-            resp2 = requests.get("http://pds-backend:8080/v1/plugin/{plugin_id}/index.json".format(plugin_id=plugin_id2))
+            resp2 = requests.get("http://pds-backend:8080/v1/plugin/{name}/index.json".format(name=name2))
 
             assert resp2.status_code == 200
             assert resp2.json() == s

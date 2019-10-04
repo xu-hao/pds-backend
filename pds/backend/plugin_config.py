@@ -25,9 +25,9 @@ def get_plugin_configs(fil):
         return list(collection.find(fil))
 
 
-def get_plugin_config(plugin_id):
+def get_plugin_config(name):
     with plugin_db() as collection:
-        return next(collection.find({"_id": ObjectId(plugin_id)}))
+        return next(collection.find({"name": name}))
 
 
 def get_plugin_ids(fil):
@@ -35,9 +35,13 @@ def get_plugin_ids(fil):
         return list(collection.find(fil, []))
 
 
-def add_plugin_configs(pc):
+def add_plugin_configs(ps):
     with plugin_db() as collection:
-        return collection.insert_many(pc).inserted_ids
+        for pc in ps:
+            name = pc["name"]
+            if len(get_plugin_configs({"name": name})) > 0:
+                raise RuntimeError("plugin name \"{name}\" already exists in database".format(name=name))
+        return collection.insert_many(ps).inserted_ids
     
     
 def update_plugin_configs(fil, update):
@@ -45,9 +49,9 @@ def update_plugin_configs(fil, update):
         return collection.update_many(fil, update).modified_count
 
 
-def replace_plugin_configs(plugin_id, update):
+def replace_plugin_configs(name, update):
     with plugin_db() as collection:
-        return collection.replace_one({"_id": plugin_id}, update).modified_count
+        return collection.replace_one({"name": name}, update).modified_count
 
 
 def delete_plugin_configs(fil):
@@ -55,7 +59,7 @@ def delete_plugin_configs(fil):
         return collection.delete_many(fil).deleted_count
 
 
-def delete_plugin_config(plugin_id):
+def delete_plugin_config(name):
     with plugin_db() as collection:
-        return collection.delete_one({"_id": plugin_id}).deleted_count
+        return collection.delete_one({"name": name}).deleted_count
 

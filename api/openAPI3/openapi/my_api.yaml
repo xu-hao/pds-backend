@@ -12,7 +12,7 @@ tags:
   - name: metadata
     description: metadata endpoints
 paths:
-  /v1/plugin/{plugin_id}/{path}:
+  /v1/plugin/{name}/{path}:
     post:
       tags:
         - plugin
@@ -20,7 +20,7 @@ paths:
       operationId: api.post_plugin
       parameters:
         - in: path
-          name: plugin_id
+          name: name
           schema:
             type: string
           required: true
@@ -45,7 +45,7 @@ paths:
       operationId: api.get_plugin
       parameters:
         - in: path
-          name: plugin_id
+          name: name
           schema:
             type: string
           required: true
@@ -132,7 +132,7 @@ paths:
                   $ref: '#/components/schemas/PluginConfig'
         '400':
           description: Invalid value
-  /v1/admin/plugin/{plugin_id}:
+  /v1/admin/plugin/{name}:
     get:
       tags:
         - admin
@@ -140,7 +140,7 @@ paths:
       operationId: api.get_plugin_config
       parameters:
         - in: path
-          name: plugin_id
+          name: name
           schema:
             type: string
           required: true
@@ -160,7 +160,7 @@ paths:
       operationId: api.delete_plugin_config
       parameters:
         - in: path
-          name: plugin_id
+          name: name
           schema:
             type: string
           required: true
@@ -176,7 +176,7 @@ paths:
       operationId: api.update_plugin_config
       parameters:
         - in: path
-          name: plugin_id
+          name: name
           schema:
             type: string
           required: true
@@ -190,7 +190,7 @@ paths:
           description: successful operation
         '400':
           description: Invalid value
-  /v1/admin/plugin/{plugin_id}/container:
+  /v1/admin/plugin/{name}/container:
     get:
       tags:
         - admin
@@ -198,7 +198,7 @@ paths:
       operationId: api.get_plugin_container
       parameters:
         - in: path
-          name: plugin_id
+          name: name
           schema:
             type: string
           required: true
@@ -218,7 +218,7 @@ paths:
       operationId: api.add_plugin_container
       parameters:
         - in: path
-          name: plugin_id
+          name: name
           schema:
             type: string
           required: true
@@ -234,7 +234,7 @@ paths:
       operationId: api.delete_plugin_container
       parameters:
         - in: path
-          name: plugin_id
+          name: name
           schema:
             type: string
           required: true

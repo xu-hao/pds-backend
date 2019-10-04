@@ -15,36 +15,42 @@ post_headers = {
 }
 
 
-def get_plugin(plugin_id, path):
-    logger.error("plugin_id = {0}".format(plugin_id))
-    pc = plugin_config.get_plugin_config(plugin_id)
+def get_plugin(name, path):
+    pc = plugin_config.get_plugin_config(name)
     resp = requests.get("http://{host}:{port}/{path}".format(host=pc["name"], port=pc["port"], path=path), headers=get_headers)
     return resp.json()
 
 
-def post_plugin(plugin_id, path, body):
-    pc = plugin_config.get_plugin_config(plugin_id)
+def post_plugin(name, path, body):
+    pc = plugin_config.get_plugin_config(name)
     resp = requests.post("http://{host}:{port}/{path}".format(host=pc["name"], port=pc["port"], path=path), headers=post_headers, json=body)
     return resp.json()
 
 
-def get_plugin_config(plugin_id):
-    pc = plugin_config.get_plugin_config(plugin_id)
+def get_plugin_config(name):
+    pc = plugin_config.get_plugin_config(name)
+    pc["_id"] = str(pc["_id"])
     return pc
 
 
 def fil(name, name_regex):
     fils = []
     if name_regex is not None:
-        fils.append({"name": {"$regex": name}})
-    if name_regex is not None:
+        fils.append({"name": {"$regex": name_regex}})
+    if name is not None:
         fils.append({"name": name})
-    return {"$and": fils}
+    if len(fils) == 0:
+        return {}
+    else:
+        return {"$and": fils}
 
 
 def get_plugin_configs(name=None, name_regex=None):
-    pc = plugin_config.get_plugin_configs(fil(name, name_regex))
-    return pc
+    ps = plugin_config.get_plugin_configs(fil(name, name_regex))
+    for pc in ps:
+        pc["_id"] = str(pc["_id"])
+
+    return ps
 
 
 def get_plugin_ids(name=None, name_regex=None):
@@ -57,33 +63,32 @@ def add_plugin_config(pc):
     return pc
 
 
-def delete_plugin_config(plugin_id):
-    plugin_config.delete_plugin_configs([plugin_id])
+def delete_plugin_config(name):
+    plugin_config.delete_plugin_configs([name])
 
 
-def update_plugin_config(plugin_id, body):
-    plugin_config.replace_plugin_config(plugin_id, body)
+def update_plugin_config(name, body):
+    plugin_config.replace_plugin_config(name, body)
 
 
-def get_plugin_container(plugin_id):
-    pc = plugin_config.get_plugin_config(plugin_id)
+def get_plugin_container(name):
+    pc = plugin_config.get_plugin_config(name)
     container = plugin.get_container(pc)
     if container is not None:
         return {
-            "image": container.image,
-            "statue": container.status
+            "status": container.status
         }
     else:
         return None
 
 
-def add_plugin_container(plugin_id):
-    pc = plugin_config.get_plugin_config(plugin_id)
+def add_plugin_container(name):
+    pc = plugin_config.get_plugin_config(name)
     plugin.run_container(pc)
 
 
-def delete_plugin_container(plugin_id):
-    pc = plugin_config.get_plugin_config(plugin_id)
+def delete_plugin_container(name):
+    pc = plugin_config.get_plugin_config(name)
     plugin.stop_container(pc)
     plugin.remove_container(pc)
 
@@ -94,14 +99,12 @@ def get_containers():
         container = plugin.get_container(pc)
         if container is not None:
             cs = {
-                "image": container.image,
-                "statue": container.status
+                "status": container.status
             }
         else:
             cs = None
 
         containers.append({
-            "_id": pc["_id"],
             "name": pc["name"],
             "container": cs
         })
