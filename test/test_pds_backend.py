@@ -36,7 +36,7 @@ name2 = "nginx20"
 def pc(temp_dir_name):
     return {
         "image": "nginx:1.17.4",
-        "parameters": None,
+        "environment": {},
         "name": name,
         "port": 80,
         "mounts": [
@@ -54,7 +54,7 @@ def pc(temp_dir_name):
 def pc2(temp_dir_name):
     return {
         "image": "nginx:1.17.4",
-        "parameters": None,
+        "environment": {},
         "name": name2,
         "port": 80,
         "mounts": [
@@ -316,4 +316,29 @@ def test_run_plugin_containers_api():
             api.delete_containers()
             plugin_config.delete_plugin_configs({})
 
+
+def test_get_plugin_containers_api():
+    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_name:
+        os.chmod(temp_dir_name, 0o755)
+        s = "pds"
+        with open(os.path.join(temp_dir_name, "index.json"), "w+") as f:
+            f.write(json.dumps(s))
+
+        try:
+            apc = pc(temp_dir_name)
+            apc2 = pc2(temp_dir_name)
+            plugin_config.add_plugin_configs([apc, apc2])
+            ps = plugin_config.get_plugin_configs({})
+            assert len(ps) == 2
+            apc = ps[0]
+
+            requests.put("http://pds-backend:8080/v1/admin/container")
+
+            resp = requests.get("http://pds-backend:8080/v1/admin/container")
+
+            assert resp.status_code == 200
+            assert bag_equal(resp.json(), [{"name": name, "container": {"status": "running"}}, {"name": name2, "container": {"status": "running"}}])
+        finally:
+            api.delete_containers()
+            plugin_config.delete_plugin_configs({})
 

@@ -7,7 +7,7 @@
   "image": docker image,
   "name": name,
   "port": port,
-  "parameters": parameters,
+  "environment": environment,
   "mounts": [ {
     "source": source path,
     "target": target path,
