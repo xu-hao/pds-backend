@@ -9,9 +9,10 @@ RUN pip3 install --no-cache-dir connexion pymongo docker gunicorn[gevent]
 
 COPY api/openAPI3 /usr/src/app/api
 COPY pds /usr/src/app/pds
+COPY server.py /usr/src/app/server.py
 
 EXPOSE 8080
 
 ENTRYPOINT ["gunicorn"]
 
-CMD ["-w", "4", "-b", "0.0.0.0:8080", "-k", "gevent", "api.server:create_app()"]
+CMD ["-w", "4", "-b", "0.0.0.0:8080", "-k", "gevent", "-c", "server.py", "api.server:create_app()"]
