@@ -17,20 +17,20 @@ post_headers = {
 
 def get_plugin(name, path):
     pc = plugin_config.get_plugin_config(name)
-    resp = requests.get("http://{host}:{port}/{path}".format(host=pc["name"], port=pc["port"], path=path), headers=get_headers)
+    resp = requests.get("http://{host}:{port}/{path}".format(host=pc["name"], port=pc["port"], path=path), headers=get_headers, stream=True)
     if resp.status_code == 200:
         return resp.json()
     else:
-        return resp.text, resp.status_code, resp.headers.items()
+        return resp.raw.read(), resp.status_code, resp.headers.items()
 
 
 def post_plugin(name, path, body):
     pc = plugin_config.get_plugin_config(name)
-    resp = requests.post("http://{host}:{port}/{path}".format(host=pc["name"], port=pc["port"], path=path), headers=post_headers, json=body)
+    resp = requests.post("http://{host}:{port}/{path}".format(host=pc["name"], port=pc["port"], path=path), headers=post_headers, json=body, stream=True)
     if resp.status_code == 200:
         return resp.json()
     else:
-        return resp.text, resp.status_code, resp.headers.items()
+        return resp.raw.read(), resp.status_code, resp.headers.items()
 
 
 def get_plugin_config(name):
