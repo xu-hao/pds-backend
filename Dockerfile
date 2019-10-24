@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 
 RUN apk add gcc musl-dev
 
-RUN pip3 install --no-cache-dir connexion pymongo docker gunicorn[gevent]
+RUN pip3 install --no-cache-dir connexion pymongo docker gunicorn[gevent] flask-cors
 
 COPY api/openAPI3 /usr/src/app/api
 COPY pds /usr/src/app/pds
