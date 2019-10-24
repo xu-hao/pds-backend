@@ -60,13 +60,13 @@ def init_plugin():
 
     if init_plugin_path is not None:
         for fn in os.listdir(init_plugin_path):
-            with open(os.path.join(init_plugin_path, fn), "r") as f:
-                pcs = yaml.safe_load(f)
-                if isinstance(pcs, list):
-                    start_plugins(pcs)
-                else:
-                    run_container(pcs)
+            if fn.endswith(".yml") or fn.endswith(".yaml"):
+                with open(os.path.join(init_plugin_path, fn), "r") as f:
+                    pcs = yaml.safe_load(f)
+                    if isinstance(pcs, list):
+                        start_plugins(pcs)
+                    else:
+                        run_container(pcs)
 
 
-init_plugin()
 
