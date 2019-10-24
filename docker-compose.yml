@@ -3,8 +3,7 @@ version: '3.4'
 services:
   mongodb:
     container_name: pds-backend-mongodb
-    build:
-      context: mongodb
+    image: zooh/tx-persistence:0.1.0
     restart: always
 #    volumes:
 #      - $MONGODB_DATA_DIR:/data/db
@@ -14,10 +13,6 @@ services:
       MONGO_INITDB_DATABASE: $MONGO_DATABASE
       MONGO_NON_ROOT_USERNAME: $MONGO_NON_ROOT_USERNAME
       MONGO_NON_ROOT_PASSWORD: $MONGO_NON_ROOT_PASSWORD
-    expose:
-      - 27017
-      - 27018
-      - 27019
 
   pds-backend:
     container_name: pds-backend

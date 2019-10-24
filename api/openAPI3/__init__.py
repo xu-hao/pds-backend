@@ -1,6 +1,9 @@
 import requests
 from pds.backend import plugin_config, plugin
 import logging
+import syslog
+import time
+from pds.backend.utils import tstostr
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -14,10 +17,29 @@ post_headers = {
     "Accept": "application/json"
 }
 
+def log(level, event, timestamp, source, **kwargs):
+    pc = plugin_config.get_plugin_config("logging")
+    if pc is None:
+        logger.log(logging.INFO, "{level},{event},{timestamp},{url},{repsonse},{status_code}")
+    else:
+        requests.post("http://{host}:{port}/log".format(host=pc["name"], port=pc["port"], path=path), headers=post_headers, json={
+            "event": event,
+            "level": level,
+            "timestamp": timestamp,
+            "source": source,
+            **kwargs
+        })
+    
+
+def timestamp():
+    return tstostr(time.time())
 
 def get_plugin(name, path):
     pc = plugin_config.get_plugin_config(name)
+    
+    log(syslog.LOG_INFO, "get_request", timestamp(), "backend", plugin=name, path=path)
     resp = requests.get("http://{host}:{port}/{path}".format(host=pc["name"], port=pc["port"], path=path), headers=get_headers, stream=True)
+    log(syslog.LOG_INFO, "get_response", timestamp(), "backend", plugin=name, path=path, response=resp.text, status_code=resp.status_code)
     if resp.status_code == 200:
         return resp.json()
     else:
@@ -26,7 +48,9 @@ def get_plugin(name, path):
 
 def post_plugin(name, path, body):
     pc = plugin_config.get_plugin_config(name)
+    log(syslog.LOG_INFO, "post_request", timestamp(), "backend", plugin=name, path=path)
     resp = requests.post("http://{host}:{port}/{path}".format(host=pc["name"], port=pc["port"], path=path), headers=post_headers, json=body, stream=True)
+    log(syslog.LOG_INFO, "post_response", timestamp(), "backend", plugin=name, path=path, response=resp.text, status_code=resp.status_code)
     if resp.status_code == 200:
         return resp.json()
     else:
