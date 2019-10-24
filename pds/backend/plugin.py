@@ -4,6 +4,7 @@ import docker
 from docker.types import Mount
 import os
 import yaml
+from .plugin_config import add_plugin_configs, delete_plugin_configs
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -63,10 +64,11 @@ def init_plugin():
             if fn.endswith(".yml") or fn.endswith(".yaml"):
                 with open(os.path.join(init_plugin_path, fn), "r") as f:
                     pcs = yaml.safe_load(f)
-                    if isinstance(pcs, list):
-                        start_plugins(pcs)
-                    else:
-                        run_container(pcs)
+                    if not isinstance(pcs, list):
+                        pcs = [pcs]
+                    start_plugins(pcs)
+                    add_plugin_configs(pcs)    
+
 
 
 
@@ -78,12 +80,13 @@ def delete_init_plugin():
             if fn.endswith(".yml") or fn.endswith(".yaml"):
                 with open(os.path.join(init_plugin_path, fn), "r") as f:
                     pcs = yaml.safe_load(f)
-                    if isinstance(pcs, list):
-                        stop_plugins(pcs)
-                        remove_plugins(pcs)
-                    else:
-                        stop_container(pcs)
-                        remove_container(pcs)
+                    if not isinstance(pcs, list):
+                        pcs = [pcs]
+                    stop_plugins(pcs)
+                    remove_plugins(pcs)
+                    for pc in pcs:
+                        delete_plugin_configs(pc)
+
 
 
 

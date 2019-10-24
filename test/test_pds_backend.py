@@ -13,7 +13,7 @@ import tempfile
 from bson.objectid import ObjectId
 import api
 import yaml
-from debug.utils import bag_equal
+from debug.utils import bag_equal, bag_contains
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -84,7 +84,7 @@ echo_pc = {
 
 echo_pc2 = {
     "image": "pds-backend-test-flask-echo-server:0.1.0",
-    "name": "echo",
+    "name": "echo2",
     "port": 80,
     "environment": {
         "HOST": "0.0.0.0",
@@ -127,11 +127,12 @@ def test_run_container_from_init():
         init_plugin_path = "/plugin"
         os.mkdir(init_plugin_path)
         with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
-            yaml.dump(echo_pc, f, default_flow_style=False)
+            yaml.dump(apc, f, default_flow_style=False)
             
         os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
 
         plugin.init_plugin()
+        assert bag_contains(plugin_config.get_plugin_configs({}), [apc])
 
         container_name = apc["name"]
 
@@ -144,6 +145,7 @@ def test_run_container_from_init():
     finally:
         plugin.stop_container(apc)
         plugin.remove_container(apc)
+        plugin_config.delete_plugin_configs(apc)
 
 
 def test_delete_container_from_init():
@@ -151,7 +153,7 @@ def test_delete_container_from_init():
     init_plugin_path = "/plugin"
     os.mkdir(init_plugin_path)
     with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
-        yaml.dump(echo_pc, f, default_flow_style=False)
+        yaml.dump(apc, f, default_flow_style=False)
         
     os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
         
@@ -161,10 +163,78 @@ def test_delete_container_from_init():
 
     time.sleep(10)
     plugin.delete_init_plugin()
-
+        
     with pytest.raises(Exception):
         resp = requests.get("http://{host}/".format(host=container_name))
 
+    assert bag_equal(plugin_config.get_plugin_configs({}), [])
+    shutil.rmtree(init_plugin_path)
+
+
+
+def test_run_container_from_init2():
+    try:
+        apc = echo_pc
+        apc2 = echo_pc2
+        apcs = [apc, apc2]
+        init_plugin_path = "/plugin"
+        os.mkdir(init_plugin_path)
+        with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
+            yaml.dump(apcs, f, default_flow_style=False)
+            
+        os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
+
+        plugin.init_plugin()
+        assert bag_contains(plugin_config.get_plugin_configs({}), apcs)
+
+        container_name = apc["name"]
+        container_name2 = apc2["name"]
+
+        time.sleep(10)
+        resp = requests.get("http://{host}/".format(host=container_name))
+
+        assert resp.status_code == 200
+        assert resp.json()["method"] == "GET"
+        resp2 = requests.get("http://{host}/".format(host=container_name2))
+
+        assert resp2.status_code == 200
+        assert resp2.json()["method"] == "GET"
+        shutil.rmtree(init_plugin_path)
+    finally:
+        plugin.stop_container(apc)
+        plugin.remove_container(apc)
+        plugin_config.delete_plugin_configs(apc)
+        plugin.stop_container(apc2)
+        plugin.remove_container(apc2)
+        plugin_config.delete_plugin_configs(apc2)
+
+
+def test_delete_container_from_init2():
+    apc = echo_pc
+    apc2 = echo_pc2
+    apcs = [apc, apc2]
+    init_plugin_path = "/plugin"
+    os.mkdir(init_plugin_path)
+    with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
+        yaml.dump(apcs, f, default_flow_style=False)
+            
+    os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
+        
+    plugin.init_plugin()
+        
+    container_name = apc["name"]
+    container_name2 = apc2["name"]
+
+    time.sleep(10)
+    plugin.delete_init_plugin()
+        
+    with pytest.raises(Exception):
+        resp = requests.get("http://{host}/".format(host=container_name))
+
+    with pytest.raises(Exception):
+        resp = requests.get("http://{host}/".format(host=container_name2))
+        
+    assert bag_equal(plugin_config.get_plugin_configs({}), [])
     shutil.rmtree(init_plugin_path)
 
 
