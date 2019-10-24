@@ -12,6 +12,7 @@ from contextlib import contextmanager
 import tempfile
 from bson.objectid import ObjectId
 import api
+import yaml
 from debug.utils import bag_equal
 
 
@@ -118,6 +119,31 @@ def test_run_container_get():
         finally:
             plugin.stop_container(apc)
             plugin.remove_container(apc)
+
+
+def test_run_container_from_init():
+    try:
+        apc = echo_pc
+        init_plugin_path = "/plugin"
+        os.mkdir(init_plugin_path)
+        with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
+            yaml.dump(echo_pc, f, default_flow_style=False)
+            
+        os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
+
+        plugin.init_plugin()
+
+        container_name = apc["name"]
+
+        time.sleep(10)
+        resp = requests.get("http://{host}/".format(host=container_name))
+
+        assert resp.status_code == 200
+        assert resp.json()["method"] == "GET"
+        shutil.rmtree(init_plugin_path)
+    finally:
+        plugin.stop_container(apc)
+        plugin.remove_container(apc)
 
 
 def test_run_container_get_echo():

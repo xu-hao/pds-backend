@@ -3,10 +3,10 @@ import json
 import docker
 from docker.types import Mount
 import os
+import yaml
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
-
 
 def start_plugins(pcs):
     for pc in pcs:
@@ -53,3 +53,20 @@ def remove_container(pc):
     client = docker.from_env()
     ret = client.containers.get(pc["name"])
     ret.remove()
+
+
+def init_plugin():
+    init_plugin_path = os.environ.get("INIT_PLUGIN_PATH")
+
+    if init_plugin_path is not None:
+        for fn in os.listdir(init_plugin_path):
+            with open(os.path.join(init_plugin_path, fn), "r") as f:
+                pcs = yaml.safe_load(f)
+                if isinstance(pcs, list):
+                    start_plugins(pcs)
+                else:
+                    run_container(pcs)
+
+
+init_plugin()
+
