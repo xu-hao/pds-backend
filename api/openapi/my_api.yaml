@@ -319,7 +319,7 @@ components:
           type: string
         environment:
           type: object
-        mounts:
+        volumes:
           type: array
           items:
             type: object

@@ -5,9 +5,9 @@ WORKDIR /usr/src/app
 
 RUN apk add gcc musl-dev
 
-RUN pip3 install --no-cache-dir connexion pymongo docker gunicorn[gevent] flask-cors
+RUN pip3 install --no-cache-dir connexion pymongo docker gunicorn[gevent] flask-cors python-dateutil
 
-COPY api/openAPI3 /usr/src/app/api
+COPY api /usr/src/app/api
 COPY pds /usr/src/app/pds
 COPY sc.py /usr/src/app/sc.py
 

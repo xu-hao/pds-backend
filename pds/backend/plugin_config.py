@@ -65,3 +65,20 @@ def delete_plugin_config(name):
     with plugin_db() as collection:
         return collection.delete_one({"name": name}).deleted_count
 
+def from_docker_compose(a):
+    return list(map(lambda x: {"name": x[0], **x[1]}, a["services"].items()))
+
+
+def delete_from_dict(d, k):
+    d2 = d.copy()
+    del d2[k]
+    return d2
+
+
+def to_docker_compose(apcs):
+    return {
+        "version": "3",
+        "services": {
+            apc["name"] : delete_from_dict(apc, "name") for apc in apcs
+        }
+    }

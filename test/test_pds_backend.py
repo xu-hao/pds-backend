@@ -14,7 +14,7 @@ from bson.objectid import ObjectId
 import api
 import yaml
 from debug.utils import bag_equal, bag_contains
-
+from pds.backend.plugin_config import to_docker_compose
 
 @pytest.fixture(scope="session", autouse=True)
 def pause():
@@ -121,18 +121,22 @@ def test_run_container_get():
             plugin.remove_container(apc)
 
 
+def write_config(apcs, f):
+    yaml.dump(to_docker_compose(apcs), f, default_flow_style=False)
+
+
 def test_run_container_from_init():
     try:
         apc = echo_pc
+        apcs = [apc]
         init_plugin_path = "/plugin"
         os.mkdir(init_plugin_path)
         with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
-            yaml.dump(apc, f, default_flow_style=False)
-            
+            write_config(apcs, f)
         os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
 
         plugin.init_plugin()
-        assert bag_contains(plugin_config.get_plugin_configs({}), [apc])
+        assert bag_contains(plugin_config.get_plugin_configs({}), apcs)
 
         container_name = apc["name"]
 
@@ -150,10 +154,11 @@ def test_run_container_from_init():
 
 def test_delete_container_from_init():
     apc = echo_pc
+    apcs = [apc]
     init_plugin_path = "/plugin"
     os.mkdir(init_plugin_path)
     with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
-        yaml.dump(apc, f, default_flow_style=False)
+        write_config(apcs, f)
         
     os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
         
@@ -180,7 +185,7 @@ def test_run_container_from_init2():
         init_plugin_path = "/plugin"
         os.mkdir(init_plugin_path)
         with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
-            yaml.dump(apcs, f, default_flow_style=False)
+            write_config(apcs, f)
             
         os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
 
@@ -216,7 +221,7 @@ def test_delete_container_from_init2():
     init_plugin_path = "/plugin"
     os.mkdir(init_plugin_path)
     with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
-        yaml.dump(apcs, f, default_flow_style=False)
+        write_config(apcs, f)
             
     os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
         
