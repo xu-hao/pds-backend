@@ -21,7 +21,7 @@ def get_plugin(name, path):
     if resp.status_code == 200:
         return resp.json()
     else:
-        return resp.status_code
+        return resp.content, resp.status_code, resp.headers
 
 
 def post_plugin(name, path, body):
@@ -30,7 +30,7 @@ def post_plugin(name, path, body):
     if resp.status_code == 200:
         return resp.json()
     else:
-        return resp.status_code
+        return resp.content, resp.status_code, resp.headers
 
 
 def get_plugin_config(name):
