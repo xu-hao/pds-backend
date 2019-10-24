@@ -70,3 +70,20 @@ def init_plugin():
 
 
 
+def delete_init_plugin():
+    init_plugin_path = os.environ.get("INIT_PLUGIN_PATH")
+
+    if init_plugin_path is not None:
+        for fn in os.listdir(init_plugin_path):
+            if fn.endswith(".yml") or fn.endswith(".yaml"):
+                with open(os.path.join(init_plugin_path, fn), "r") as f:
+                    pcs = yaml.safe_load(f)
+                    if isinstance(pcs, list):
+                        stop_plugins(pcs)
+                        remove_plugins(pcs)
+                    else:
+                        stop_container(pcs)
+                        remove_container(pcs)
+
+
+

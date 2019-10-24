@@ -146,6 +146,29 @@ def test_run_container_from_init():
         plugin.remove_container(apc)
 
 
+def test_delete_container_from_init():
+    apc = echo_pc
+    init_plugin_path = "/plugin"
+    os.mkdir(init_plugin_path)
+    with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
+        yaml.dump(echo_pc, f, default_flow_style=False)
+        
+    os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
+        
+    plugin.init_plugin()
+        
+    container_name = apc["name"]
+
+    time.sleep(10)
+    plugin.delete_init_plugin()
+
+    with pytest.raises(Exception):
+        resp = requests.get("http://{host}/".format(host=container_name))
+
+    shutil.rmtree(init_plugin_path)
+
+
+
 def test_run_container_get_echo():
     try:
         apc = echo_pc
