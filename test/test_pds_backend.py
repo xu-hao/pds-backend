@@ -273,6 +273,44 @@ def test_run_container_post_echo():
         assert resp.status_code == 200
         assert resp.json()["data"] == json.dumps(s)
         assert resp.json()["method"] == "POST"
+
+    finally:
+        plugin.stop_container(apc)
+        plugin.remove_container(apc)
+
+
+def test_run_container_get_echo_404():
+    try:
+        apc = echo_pc
+
+        plugin.run_container(apc)
+
+        container_name = apc["name"]
+
+        time.sleep(10)
+        resp = requests.get("http://{host}/?status=404".format(host=container_name))
+
+        assert resp.status_code == 404
+
+    finally:
+        plugin.stop_container(apc)
+        plugin.remove_container(apc)
+
+
+def test_run_container_post_echo_404():
+    s = "pds"
+    try:
+        apc = echo_pc
+
+        plugin.run_container(apc)
+
+        container_name = apc["name"]
+
+        time.sleep(10)
+        resp = requests.post("http://{host}/?status=404".format(host=container_name), headers={"Content-Type": "application/json"}, json=s)
+
+        assert resp.status_code == 404
+
     finally:
         plugin.stop_container(apc)
         plugin.remove_container(apc)
