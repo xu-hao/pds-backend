@@ -34,8 +34,10 @@ services:
       MONGO_DATABASE: $MONGO_DATABASE
       MONGO_USERNAME: $MONGO_NON_ROOT_USERNAME
       MONGO_PASSWORD: $MONGO_NON_ROOT_PASSWORD
+      INIT_PLUGIN_PATH: /plugin
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - $INIT_PLUGIN_PATH:/plugin
     depends_on:
       - mongodb
     
