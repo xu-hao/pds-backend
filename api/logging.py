@@ -8,6 +8,11 @@ from pds.backend import plugin_config
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+
+post_headers = {
+    "Content-Type": "application/json",
+    "Accept": "application/json"
+}
 def l(event, source):
     def function_wrapper(func):
         def function_wrapped(*args, **kwargs):
