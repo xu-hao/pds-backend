@@ -2,21 +2,15 @@ import requests
 from pds.backend import plugin_config, plugin
 from .logging import l
 import logging
+import connexion
+import sys
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-get_headers = {
-    "Accept": "application/json"
-}
-
-post_headers = {
-    "Content-Type": "application/json",
-    "Accept": "application/json"
-}
 
 @l("get", "backend")
-def get_plugin(name, path, **kwargs):
+def get_plugin(name, path, headers, kwargs={}):
     pc = plugin_config.get_plugin_config(name)
     if pc is None:
         return "not found", 404
@@ -24,16 +18,13 @@ def get_plugin(name, path, **kwargs):
     port = pc.get("port", None)
     if port is None:
         raise RuntimeError("plugin doesn't have port")
-    
-    resp = requests.get("http://{host}:{port}/{path}".format(host=pc["name"], port=port, path=path), headers=get_headers, params=kwargs, stream=True)
-    if resp.status_code == 200:
-        return resp.json()
-    else:
-        return resp.text, resp.status_code
+
+    resp = requests.get("http://{host}:{port}/{path}".format(host=pc["name"], port=port, path=path), headers=headers, params=kwargs, stream=True)
+    return resp.raw.read(), resp.status_code, resp.headers.items()
 
 
 @l("post", "backend")
-def post_plugin(name, path, body):
+def post_plugin(name, path, headers, body, kwargs={}):
     pc = plugin_config.get_plugin_config(name)
     if pc is None:
         return "not found", 404
@@ -42,11 +33,8 @@ def post_plugin(name, path, body):
     if port is None:
         raise RuntimeError("plugin doesn't have port")
 
-    resp = requests.post("http://{host}:{port}/{path}".format(host=pc["name"], port=port, path=path), headers=post_headers, params=kwargs, json=body, stream=True)
-    if resp.status_code == 200:
-        return resp.json()
-    else:
-        return resp.text, resp.status_code
+    resp = requests.post("http://{host}:{port}/{path}".format(host=pc["name"], port=port, path=path), headers=headers, params=kwargs, json=body, stream=True)
+    return resp.raw.read(), resp.status_code, resp.headers.items()
 
 
 def get_plugin_config(name):

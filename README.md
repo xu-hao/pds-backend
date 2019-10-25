@@ -8,13 +8,32 @@
   "name": name,
   "port": port,
   "environment": environment,
-  "mounts": [ {
+  "volumes": [ {
     "source": source path,
     "target": target path,
     "type": type,
     "read_only": read only
-  } ]
+  } ],
+  depends_on: [ service ]
 }
+```
+
+## plugin configuration format for INIT_PLUGIN_PATH
+`.yaml` or `.yml`
+
+```
+services:
+  <name>:
+    image: <docker image>
+    port: <port>
+    environment: <environment>
+    volumes:
+      - source: <source path>
+        target: <target path>
+        type: <type>
+        read_only: <read only>
+    depends_on:
+      - <service>
 ```
 
 

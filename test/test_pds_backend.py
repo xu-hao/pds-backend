@@ -16,6 +16,8 @@ import yaml
 from debug.utils import bag_equal, bag_contains
 from pds.backend.plugin_config import to_docker_compose
 
+CLIENT_DELAY = 1
+
 @pytest.fixture(scope="session", autouse=True)
 def pause():
     yield
@@ -200,7 +202,7 @@ def test_run_container_from_init():
 
         container_name = apc["name"]
 
-        time.sleep(10)
+        time.sleep(CLIENT_DELAY)
         resp = requests.get("http://{host}/".format(host=container_name))
 
         assert resp.status_code == 200
@@ -226,7 +228,7 @@ def test_delete_container_from_init():
         
     container_name = apc["name"]
 
-    time.sleep(10)
+    time.sleep(CLIENT_DELAY)
     plugin.delete_init_plugin()
         
     with pytest.raises(Exception):
@@ -255,7 +257,7 @@ def test_run_container_from_init2():
         container_name = apc["name"]
         container_name2 = apc2["name"]
 
-        time.sleep(10)
+        time.sleep(CLIENT_DELAY)
         resp = requests.get("http://{host}/".format(host=container_name))
 
         assert resp.status_code == 200
@@ -290,7 +292,7 @@ def test_delete_container_from_init2():
     container_name = apc["name"]
     container_name2 = apc2["name"]
 
-    time.sleep(10)
+    time.sleep(CLIENT_DELAY)
     plugin.delete_init_plugin()
         
     with pytest.raises(Exception):
@@ -316,7 +318,7 @@ def test_run_container_from_init_dep():
         plugin.init_plugin()
         assert bag_contains(plugin_config.get_plugin_configs({}), apcs)
 
-        time.sleep(10)
+        time.sleep(CLIENT_DELAY)
         for apc in apcs:
             container_name = apc["name"]
 
@@ -343,7 +345,7 @@ def test_delete_container_from_init_dep():
         
     plugin.init_plugin()
         
-    time.sleep(10)
+    time.sleep(CLIENT_DELAY)
     plugin.delete_init_plugin()
         
     for apc in apcs:
@@ -405,7 +407,7 @@ def test_run_container_get_echo():
 
         container_name = apc["name"]
 
-        time.sleep(10)
+        time.sleep(CLIENT_DELAY)
         resp = requests.get("http://{host}/".format(host=container_name))
 
         assert resp.status_code == 200
@@ -425,7 +427,7 @@ def test_run_container_post_echo():
 
         container_name = apc["name"]
 
-        time.sleep(10)
+        time.sleep(CLIENT_DELAY)
         resp = requests.post("http://{host}/".format(host=container_name), headers={"Content-Type": "application/json"}, json=s)
 
         assert resp.status_code == 200
@@ -445,7 +447,7 @@ def test_run_container_get_echo_404():
 
         container_name = apc["name"]
 
-        time.sleep(10)
+        time.sleep(CLIENT_DELAY)
         resp = requests.get("http://{host}/?status=404".format(host=container_name))
 
         assert resp.status_code == 404
@@ -464,7 +466,7 @@ def test_run_container_post_echo_404():
 
         container_name = apc["name"]
 
-        time.sleep(10)
+        time.sleep(CLIENT_DELAY)
         resp = requests.post("http://{host}/?status=404".format(host=container_name), headers={"Content-Type": "application/json"}, json=s)
 
         assert resp.status_code == 404
@@ -482,7 +484,7 @@ def test_run_container_environment_post_echo():
 
         container_name = apc["name"]
 
-        time.sleep(10)
+        time.sleep(CLIENT_DELAY)
         resp = requests.post("http://{host}/".format(host=container_name), headers={"Content-Type": "application/json"}, json=s)
 
         assert resp.status_code == 200
@@ -699,53 +701,46 @@ def test_run_non_existent_plugin_container_post():
     assert resp.status_code == 404
 
 
-def test_run_container_plugin_get_echo_404():
-    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_name:
-        os.chmod(temp_dir_name, 0o755)
-        s = "pds"
-        with open(os.path.join(temp_dir_name, "index.json"), "w+") as f:
-            f.write(json.dumps(s))
+def test_run_plugin_container_get_echo_405():
 
-        try:
-            apc = pc(temp_dir_name)
-            plugin_config.add_plugin_configs([apc])
-            ps = plugin_config.get_plugin_configs({"name": name})
-            assert len(ps) == 1
-            apc = ps[0]
-            plugin.run_container(apc)
+    try:
+        apc = echo_pc
+        plugin_config.add_plugin_configs([apc])
+        container_name = apc["name"]
+        ps = plugin_config.get_plugin_configs({"name": container_name})
+        assert len(ps) == 1
+        apc = ps[0]
+        plugin.run_container(apc)
         
-            time.sleep(10)
-            resp = requests.get("http://pds-backend:8080/v1/plugin/{name}/?status=404".format(name=name))
+        time.sleep(CLIENT_DELAY)
+        resp = requests.get("http://pds-backend:8080/v1/plugin/{name}/index.json?status=405".format(name=container_name))
         
-            assert resp.status_code == 404
-        finally:
-            api.delete_containers()
-            plugin_config.delete_plugin_configs({})
+        assert resp.status_code == 405
+    finally:
+        api.delete_containers()
+        plugin_config.delete_plugin_configs({})
 
 
-def test_run_container_plugin_post_echo_404():
-    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_name:
-        os.chmod(temp_dir_name, 0o755)
-        s = "pds"
-        with open(os.path.join(temp_dir_name, "index.json"), "w+") as f:
-            f.write(json.dumps(s))
+def test_run_plugin_container_post_echo_405():
+    s = "pds"
+    
+    try:
+        apc = echo_pc
+        plugin_config.add_plugin_configs([apc])
+        container_name = apc["name"]
+        ps = plugin_config.get_plugin_configs({"name": container_name})
+        assert len(ps) == 1
+        apc = ps[0]
+        plugin.run_container(apc)
+        
+        time.sleep(CLIENT_DELAY)
+        resp = requests.post("http://pds-backend:8080/v1/plugin/{name}/index.json?status=405".format(name=container_name), headers={"Content-Type": "application/json"}, json=s)
 
-        try:
-            apc = pc(temp_dir_name)
-            plugin_config.add_plugin_configs([apc])
-            ps = plugin_config.get_plugin_configs({"name": name})
-            assert len(ps) == 1
-            apc = ps[0]
-            plugin.run_container(apc)
+        assert resp.status_code == 405
 
-            time.sleep(10)
-            resp = requests.post("http://pds-backend:8080/v1/plugin/{name}/?status=404".format(name=name), headers={"Content-Type": "application/json"}, json=s)
-
-            assert resp.status_code == 404
-
-        finally:
-            api.delete_containers()
-            plugin_config.delete_plugin_configs({})
+    finally:
+        api.delete_containers()
+        plugin_config.delete_plugin_configs({})
 
 
 def test_run_plugin_container_api():

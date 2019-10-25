@@ -12,54 +12,68 @@ tags:
   - name: metadata
     description: metadata endpoints
 paths:
-  /v1/plugin/{name}/{path}:
-    post:
-      tags:
-        - plugin
-      summary: call a plugin via the post method
-      operationId: api.post_plugin
-      parameters:
-        - in: path
-          name: name
-          schema:
-            type: string
-          required: true
-        - in: path
-          name: path
-          schema:
-            type: string
-            format: path
-          required: true
-      responses:
-        '200':
-          description: successful operation
-      requestBody:
-        content:
-          application/json:
-            schema: {}
-    get:
-      tags:
-        - plugin
-      summary: call a plugin via the get method
-      description: call a plugin via the get method
-      operationId: api.get_plugin
-      parameters:
-        - in: path
-          name: name
-          schema:
-            type: string
-          required: true
-        - in: path
-          name: path
-          schema:
-            type: string
-            format: path
-          required: true
-      responses:
-        '200':
-          description: successful operation
-        '400':
-          description: Invalid value
+  # /v1/plugin/{name}/{path}:
+  #   post:
+  #     tags:
+  #       - plugin
+  #     summary: call a plugin via the post method
+  #     operationId: api.post_plugin
+  #     parameters:
+  #       - in: path
+  #         name: name
+  #         schema:
+  #           type: string
+  #         required: true
+  #       - in: path
+  #         name: path
+  #         schema:
+  #           type: string
+  #           format: path
+  #         required: true
+  #       - in: query
+  #         name: kwargs
+  #         schema:
+  #           type: object
+  #           additionalProperties: true
+  #         style: form
+  #         explode: true
+  #     responses:
+  #       '200':
+  #         description: successful operation
+  #     requestBody:
+  #       content:
+  #         application/json:
+  #           schema: {}
+  #   get:
+  #     tags:
+  #       - plugin
+  #     summary: call a plugin via the get method
+  #     description: call a plugin via the get method
+  #     operationId: api.get_plugin
+  #     parameters:
+  #       - in: path
+  #         name: name
+  #         schema:
+  #           type: string
+  #         required: true
+  #       - in: path
+  #         name: path
+  #         schema:
+  #           type: string
+  #           format: path
+  #         required: true
+  #       - in: query
+  #         name: kwargs
+  #         schema:
+  #           type: object
+  #           additionalProperties: true
+  #         style: form
+  #         explode: true
+  #     responses:
+  #       '200':
+  #         description: successful operation
+  #       '400':
+  #         description: Invalid value
   /v1/metadata/plugin:
     get:
       tags:
