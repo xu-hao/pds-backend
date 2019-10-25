@@ -18,6 +18,9 @@ post_headers = {
 @l("get", "backend")
 def get_plugin(name, path):
     pc = plugin_config.get_plugin_config(name)
+    if pc is None:
+        return "not found", 404
+    
     port = pc.get("port", None)
     if port is None:
         raise RuntimeError("plugin doesn't have port")
@@ -26,12 +29,15 @@ def get_plugin(name, path):
     if resp.status_code == 200:
         return resp.json()
     else:
-        return None, resp.status_code
+        return resp.text, resp.status_code
 
 
 @l("post", "backend")
 def post_plugin(name, path, body):
     pc = plugin_config.get_plugin_config(name)
+    if pc is None:
+        return "not found", 404
+
     port = pc.get("port", None)
     if port is None:
         raise RuntimeError("plugin doesn't have port")
@@ -40,7 +46,7 @@ def post_plugin(name, path, body):
     if resp.status_code == 200:
         return resp.json()
     else:
-        return None, resp.status_code
+        return resp.text, resp.status_code
 
 
 def get_plugin_config(name):

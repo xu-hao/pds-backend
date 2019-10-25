@@ -687,6 +687,19 @@ def test_run_plugin_container():
             plugin_config.delete_plugin_configs({})
 
 
+def test_run_non_existent_plugin_container_get():
+    resp = requests.get("http://pds-backend:8080/v1/plugin/nonplugin/index.json")
+
+    assert resp.status_code == 404
+
+
+def test_run_non_existent_plugin_container_post():
+    resp = requests.post("http://pds-backend:8080/v1/plugin/notaplugin/index.json")
+
+    assert resp.status_code == 404
+
+
+
 def test_run_plugin_container_api():
     with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_name:
         os.chmod(temp_dir_name, 0o755)
