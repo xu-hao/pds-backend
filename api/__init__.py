@@ -1,9 +1,7 @@
 import requests
 from pds.backend import plugin_config, plugin
+from .logging import lare
 import logging
-import syslog
-import time
-from pds.backend.utils import tstostr
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -17,40 +15,28 @@ post_headers = {
     "Accept": "application/json"
 }
 
-def log(level, event, timestamp, source, **kwargs):
-    pc = plugin_config.get_plugin_config("logging")
-    if pc is None:
-        logger.log(logging.INFO, f"{level},{event},{timestamp},{source},{kwargs}")
-    else:
-        requests.post("http://{host}:{port}/log".format(host=pc["name"], port=pc["port"], path=path), headers=post_headers, json={
-            "event": event,
-            "level": level,
-            "timestamp": timestamp,
-            "source": source,
-            **kwargs
-        })
-    
-
-def timestamp():
-    return tstostr(time.time())
-
+@lare("get", "backend")
 def get_plugin(name, path):
     pc = plugin_config.get_plugin_config(name)
+    port = pc.get("port", None)
+    if port is None:
+        raise RuntimeError("plugin doesn't have port")
     
-    log(syslog.LOG_INFO, "get_request", timestamp(), "backend", plugin=name, path=path)
-    resp = requests.get("http://{host}:{port}/{path}".format(host=pc["name"], port=pc["port"], path=path), headers=get_headers, stream=True)
-    log(syslog.LOG_INFO, "get_response", timestamp(), "backend", plugin=name, path=path, response=resp.text, status_code=resp.status_code)
+    resp = requests.get("http://{host}:{port}/{path}".format(host=pc["name"], port=port, path=path), headers=get_headers, stream=True)
     if resp.status_code == 200:
         return resp.json()
     else:
         return None, resp.status_code
 
 
+@lare("post", "backend")
 def post_plugin(name, path, body):
     pc = plugin_config.get_plugin_config(name)
-    log(syslog.LOG_INFO, "post_request", timestamp(), "backend", plugin=name, path=path)
-    resp = requests.post("http://{host}:{port}/{path}".format(host=pc["name"], port=pc["port"], path=path), headers=post_headers, json=body, stream=True)
-    log(syslog.LOG_INFO, "post_response", timestamp(), "backend", plugin=name, path=path, response=resp.text, status_code=resp.status_code)
+    port = pc.get("port", None)
+    if port is None:
+        raise RuntimeError("plugin doesn't have port")
+
+    resp = requests.post("http://{host}:{port}/{path}".format(host=pc["name"], port=port, path=path), headers=post_headers, json=body, stream=True)
     if resp.status_code == 200:
         return resp.json()
     else:

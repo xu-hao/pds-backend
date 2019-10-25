@@ -4,18 +4,19 @@ import docker
 from docker.types import Mount
 import os
 import yaml
-from .plugin_config import add_plugin_configs, delete_plugin_configs, from_docker_compose
+from .plugin_config import add_plugin_configs, delete_plugin_configs, from_docker_compose, sort_plugin_configs
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+    
 def start_plugins(pcs):
-    for pc in pcs:
+    for pc in sort_plugin_configs(pcs):
         run_container(pc)
 
 
 def stop_plugins(pcs):
-    for pc in pcs:
+    for pc in reversed(sort_plugin_configs(pcs)):
         stop_container(pc)
 
 

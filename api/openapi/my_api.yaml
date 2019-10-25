@@ -338,6 +338,10 @@ components:
               - type
               - read_only
             additionalProperties: false
+        depends_on:
+          type: array
+          items:
+            type: string
       required:
         - image
         - name

@@ -94,6 +94,66 @@ echo_pc2 = {
     "volumes": []
 }
 
+echo_pcs_dep = [
+    {
+        "image": "pds-backend-test-flask-echo-server:0.1.0",
+        "environment": {},
+        "name": "echo",
+        "port": 80,
+        "environment": {
+            "HOST": "0.0.0.0",
+            "PORT": "80"
+        }
+    }, {
+        "image": "pds-backend-test-flask-echo-server:0.1.0",
+        "name": "echo2",
+        "port": 80,
+        "environment": {
+            "HOST": "0.0.0.0",
+            "PORT": "80",
+            "VAR": "data"
+        },
+        "depends_on": ["echo"]
+    }
+]
+
+
+echo_pcs_dep2 = [
+    {
+        "image": "pds-backend-test-flask-echo-server:0.1.0",
+        "environment": {},
+        "name": "echo",
+        "port": 80,
+        "depends_on": ["echo2"]
+    }, {
+        "image": "pds-backend-test-flask-echo-server:0.1.0",
+        "name": "echo2",
+        "port": 80,
+        "depends_on": ["echo"]
+    }
+]
+
+
+echo_pcs_dep3 = [
+    {
+        "image": "pds-backend-test-flask-echo-server:0.1.0",
+        "environment": {},
+        "name": "echo",
+        "port": 80
+    }, {
+        "image": "pds-backend-test-flask-echo-server:0.1.0",
+        "environment": {},
+        "name": "echo2",
+        "port": 80,
+        "depends_on": ["echo0"]
+    }, {
+        "image": "pds-backend-test-flask-echo-server:0.1.0",
+        "name": "echo3",
+        "port": 80,
+        "depends_on": ["echo0"]
+    }
+]
+
 
 fil = {"name": name}
 
@@ -242,6 +302,99 @@ def test_delete_container_from_init2():
     assert bag_equal(plugin_config.get_plugin_configs({}), [])
     shutil.rmtree(init_plugin_path)
 
+
+
+def test_run_container_from_init_dep():
+    apcs = echo_pcs_dep
+    try:
+        init_plugin_path = "/plugin"
+        os.mkdir(init_plugin_path)
+        with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
+            write_config(apcs, f)
+        os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
+
+        plugin.init_plugin()
+        assert bag_contains(plugin_config.get_plugin_configs({}), apcs)
+
+        time.sleep(10)
+        for apc in apcs:
+            container_name = apc["name"]
+
+            resp = requests.get("http://{host}/".format(host=container_name))
+
+        assert resp.status_code == 200
+        assert resp.json()["method"] == "GET"
+        shutil.rmtree(init_plugin_path)
+    finally:
+        for apc in apcs:
+            plugin.stop_container(apc)
+            plugin.remove_container(apc)
+            plugin_config.delete_plugin_configs(apc)
+
+
+def test_delete_container_from_init_dep():
+    apcs = echo_pcs_dep
+    init_plugin_path = "/plugin"
+    os.mkdir(init_plugin_path)
+    with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
+        write_config(apcs, f)
+        
+    os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
+        
+    plugin.init_plugin()
+        
+    time.sleep(10)
+    plugin.delete_init_plugin()
+        
+    for apc in apcs:
+        container_name = apc["name"]
+
+        with pytest.raises(Exception):
+            resp = requests.get("http://{host}/".format(host=container_name))
+
+    assert bag_equal(plugin_config.get_plugin_configs({}), [])
+    shutil.rmtree(init_plugin_path)
+
+
+
+def test_run_container_from_init_deps2():
+    apcs = echo_pcs_dep2
+    init_plugin_path = "/plugin"
+    os.mkdir(init_plugin_path)
+    with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
+        write_config(apcs, f)
+    os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
+        
+    with pytest.raises(Exception):
+        plugin.init_plugin()
+
+    for apc in apcs:
+        container_name = apc["name"]
+
+        with pytest.raises(Exception):
+            resp = requests.get("http://{host}/".format(host=container_name))
+
+    shutil.rmtree(init_plugin_path)
+
+
+def test_run_container_from_init_deps3():
+    apcs = echo_pcs_dep3
+    init_plugin_path = "/plugin"
+    os.mkdir(init_plugin_path)
+    with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
+        write_config(apcs, f)
+    os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
+        
+    with pytest.raises(Exception):
+        plugin.init_plugin()
+
+    for apc in apcs:
+        container_name = apc["name"]
+
+        with pytest.raises(Exception):
+            resp = requests.get("http://{host}/".format(host=container_name))
+
+    shutil.rmtree(init_plugin_path)
 
 
 def test_run_container_get_echo():

@@ -82,3 +82,25 @@ def to_docker_compose(apcs):
             apc["name"] : delete_from_dict(apc, "name") for apc in apcs
         }
     }
+
+
+def sort_plugin_configs(pcs):
+    started = set()
+    pcs2 = pcs
+    pcs3 = []
+    pcs4 = []
+    while len(pcs2) > 0:
+        for pc in pcs2:
+            dep = set(pc.get("depends_on", []))
+            if dep.issubset(started):
+                pcs4.append(pc)
+                started.add(pc["name"])
+            else:
+                pcs3.append(pc)
+        if len(pcs3) == len(pcs2):
+            raise RuntimeError("unsatisfied dependencies")
+        else:
+            pcs2 = pcs3
+            pcs3 = []
+    return pcs4
+
