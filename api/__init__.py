@@ -20,7 +20,7 @@ post_headers = {
 def log(level, event, timestamp, source, **kwargs):
     pc = plugin_config.get_plugin_config("logging")
     if pc is None:
-        logger.log(logging.INFO, f"{level},{event},{timestamp},{url},{repsonse},{status_code}{kwargs}")
+        logger.log(logging.INFO, f"{level},{event},{timestamp},{url},{repsonse},{status_code},{kwargs}")
     else:
         requests.post("http://{host}:{port}/log".format(host=pc["name"], port=pc["port"], path=path), headers=post_headers, json={
             "event": event,
