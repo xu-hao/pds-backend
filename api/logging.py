@@ -1,6 +1,7 @@
 import syslog
 import time
 import logging
+import requests
 from pds.backend.utils import tstostr
 from pds.backend import plugin_config
 
