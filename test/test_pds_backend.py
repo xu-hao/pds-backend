@@ -699,6 +699,54 @@ def test_run_non_existent_plugin_container_post():
     assert resp.status_code == 404
 
 
+def test_run_container_plugin_get_echo_404():
+    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_name:
+        os.chmod(temp_dir_name, 0o755)
+        s = "pds"
+        with open(os.path.join(temp_dir_name, "index.json"), "w+") as f:
+            f.write(json.dumps(s))
+
+        try:
+            apc = pc(temp_dir_name)
+            plugin_config.add_plugin_configs([apc])
+            ps = plugin_config.get_plugin_configs({"name": name})
+            assert len(ps) == 1
+            apc = ps[0]
+            plugin.run_container(apc)
+        
+            time.sleep(10)
+            resp = requests.get("http://pds-backend:8080/v1/plugin/{name}/?status=404".format(name=name))
+        
+            assert resp.status_code == 404
+        finally:
+            api.delete_containers()
+            plugin_config.delete_plugin_configs({})
+
+
+def test_run_container_plugin_post_echo_404():
+    with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_name:
+        os.chmod(temp_dir_name, 0o755)
+        s = "pds"
+        with open(os.path.join(temp_dir_name, "index.json"), "w+") as f:
+            f.write(json.dumps(s))
+
+        try:
+            apc = pc(temp_dir_name)
+            plugin_config.add_plugin_configs([apc])
+            ps = plugin_config.get_plugin_configs({"name": name})
+            assert len(ps) == 1
+            apc = ps[0]
+            plugin.run_container(apc)
+
+            time.sleep(10)
+            resp = requests.post("http://pds-backend:8080/v1/plugin/{name}/?status=404".format(name=name), headers={"Content-Type": "application/json"}, json=s)
+
+            assert resp.status_code == 404
+
+        finally:
+            api.delete_containers()
+            plugin_config.delete_plugin_configs({})
+
 
 def test_run_plugin_container_api():
     with tempfile.TemporaryDirectory(prefix="/tmp/") as temp_dir_name:
