@@ -40,7 +40,7 @@ def pc(temp_dir_name):
         "environment": {},
         "name": name,
         "port": 80,
-        "mounts": [
+        "volumes": [
             {
                 "target": "/usr/share/nginx/html",
                 "source": temp_dir_name,
@@ -58,7 +58,7 @@ def pc2(temp_dir_name):
         "environment": {},
         "name": name2,
         "port": 80,
-        "mounts": [
+        "volumes": [
             {
                 "target": "/usr/share/nginx/html",
                 "source": temp_dir_name,
@@ -79,7 +79,7 @@ echo_pc = {
         "HOST": "0.0.0.0",
         "PORT": "80"
     },
-    "mounts": []
+    "volumes": []
 }
 
 echo_pc2 = {
@@ -91,7 +91,7 @@ echo_pc2 = {
         "PORT": "80",
         "VAR": "data"
     },
-    "mounts": []
+    "volumes": []
 }
 
 

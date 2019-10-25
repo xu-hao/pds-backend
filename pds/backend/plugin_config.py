@@ -27,7 +27,7 @@ def get_plugin_configs(fil):
 
 def get_plugin_config(name):
     with plugin_db() as collection:
-        return next(collection.find({"name": name}))
+        return collection.find_one({"name": name})
 
 
 def get_plugin_ids(fil):
