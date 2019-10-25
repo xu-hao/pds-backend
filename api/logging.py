@@ -28,8 +28,8 @@ def l(event, source):
     return function_wrapper
 
 
-def to_json(d):
-    return d
+def to_json(data):
+    return data
 
 
 def log(level, event, timestamp, source,*args, **kwargs):
