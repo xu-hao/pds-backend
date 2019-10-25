@@ -1,6 +1,6 @@
 import requests
 from pds.backend import plugin_config, plugin
-from .logging import lare
+from .logging import l
 import logging
 
 logger = logging.getLogger()
@@ -15,7 +15,7 @@ post_headers = {
     "Accept": "application/json"
 }
 
-@lare("get", "backend")
+@l("get", "backend")
 def get_plugin(name, path):
     pc = plugin_config.get_plugin_config(name)
     port = pc.get("port", None)
@@ -29,7 +29,7 @@ def get_plugin(name, path):
         return None, resp.status_code
 
 
-@lare("post", "backend")
+@l("post", "backend")
 def post_plugin(name, path, body):
     pc = plugin_config.get_plugin_config(name)
     port = pc.get("port", None)
