@@ -28,6 +28,10 @@ def l(event, source):
     return function_wrapper
 
 
+def to_json(d):
+    return d
+
+
 def log(level, event, timestamp, source,*args, **kwargs):
     pc = plugin_config.get_plugin_config("logging")
     if pc is None:
@@ -38,8 +42,8 @@ def log(level, event, timestamp, source,*args, **kwargs):
             "level": level,
             "timestamp": timestamp,
             "source": source,
-            "args": args,
-            "kwargs": kwargs
+            "args": to_json(args),
+            "kwargs": to_json(kwargs)
         })
     
 
