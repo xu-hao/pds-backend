@@ -28,7 +28,7 @@ def log(level, event, timestamp, source,*args, **kwargs):
     if pc is None:
         logger.log(logging.INFO, f"{level},{event},{timestamp},{source},{args},{kwargs}")
     else:
-        requests.post("http://{host}:{port}/log".format(host=pc["name"], port=pc["port"], path=path), headers=post_headers, json={
+        requests.post("http://{host}:{port}/log".format(host=pc["name"], port=pc["port"]), headers=post_headers, json={
             "event": event,
             "level": level,
             "timestamp": timestamp,
