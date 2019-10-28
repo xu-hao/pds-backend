@@ -21,9 +21,20 @@ curl http://localhost:8080/v1/plugin/pdsdpi-mock-fhir/Patient/38
 ```
 
 #### phenotype mapper
+
 ```
 curl "http://localhost:8080/v1/plugin/pds-phenotype-mapping/mapping?data_provider_plugin_interface=pdsdpi-mock-fhir&timestamp=2019-10-28T00:00:00Z&patient_id=38&clinical_feature_variable=age"
 ```
+
+parameters
+
+`data_provider_plugin_interface`: which data provider plugin interface to use.
+
+`timestamp`: a time stamp in ISO 8601 format. This is used to calculate some of the features such as age.
+
+`patinet_id`: patient id
+
+`clinical_feature_variable`: clinical feature variable
 
 available variables
 ```
