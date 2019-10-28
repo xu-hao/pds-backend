@@ -48,7 +48,7 @@ def log(level, event, timestamp, source,*args, **kwargs):
     else:
         requests.post("http://{host}:{port}/log".format(host=pc["name"], port=pc["port"]), headers=post_headers, json={
             "event": event,
-            "level": level,
+            "level": str(level),
             "timestamp": timestamp,
             "source": source,
             "args": to_json(args),
