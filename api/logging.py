@@ -29,7 +29,16 @@ def l(event, source):
 
 
 def to_json(data):
-    return data
+    if data is None:
+        return None
+    if isinstance(data, dict):
+        return {k: to_json(v) for k, v in data.items()}
+    elif isinstance(data, list):
+        return [to_json(v) for v in data]
+    elif isinstance(data, int) or isinstance(data, float) or isinstance(data, bool) or isinstance(data, str):
+        return data
+    else:
+        return str(data)
 
 
 def log(level, event, timestamp, source,*args, **kwargs):
