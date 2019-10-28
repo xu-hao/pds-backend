@@ -3,18 +3,23 @@
 ## how to deploy
 
 ### set port
-update `.env` `API_PORT`
+
+The default port is `8080`, if you want to change the port, update in `.env` file `API_PORT`. We assume that we use the default port in the following.
 
 ### run command
+
+To start `pds-backend`
 ```
-docker-compose up --build
+docker-compose up --build -d
 ```
 
 ### urls for plugins
+
 #### dpi
 ```
 curl http://localhost:8080/v1/plugin/pdsdpi-mock-fhir/Patient/38
 ```
+
 #### phenotype mapper
 ```
 curl "http://localhost:8080/v1/plugin/pds-phenotype-mapping/mapping?data_provider_plugin_interface=pdsdpi-mock-fhir&timestamp=2019-10-28T00:00:00Z&patient_id=38&clinical_feature_variable=age"
@@ -34,6 +39,7 @@ available variables
     "29463-7": weight,
     "39156-5": bmi
 ```
+
 #### mpi
 ```
 curl "http://localhost:8080/v1/plugin/pdsmpi-ref/plugin path"
