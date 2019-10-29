@@ -33,7 +33,7 @@ services:
       - pdslogging-fluentd
       - pdslogging-mongodb
     environment:
-      FLUENTD_HOST: txlogging-fluentd
+      FLUENTD_HOST: pdslogging-fluentd
       FLUENTD_PORT: 24224
       FLUENTD_APP: pdsloggingfluentdapp
       MONGO_HOST: pdslogging-mongodb
