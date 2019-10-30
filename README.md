@@ -56,7 +56,30 @@ available variables
 curl "http://localhost:8080/v1/plugin/pdsmpi-ref/plugin path"
 ```
 
+#### profile
+```
+curl "http://localhost:8080/v1/plugin/pds-profile/profile?data_provider_plugin_interface=pdsdpi-mock-fhir&phenotype_mapping_plugin_interface=pds-phenotype-mapping&model_plugin_interface=pdsmpi-ref&timestamp=2019-10-28T00:00:00Z&patient_id=38"
+```
 
+`data_provider_plugin_interface`: which data provider plugin interface to use.
+
+`model_plugin_interface`: which model plugin interface to use.
+
+`phenotype_mapping_plugin_interface`: which phenotype mapping plugin interface to use.
+
+`timestamp`: a time stamp in ISO 8601 format. This is used to calculate some of the features such as age.
+
+`patinet_id`: patient id
+
+#### logging
+```
+curl -X POST "http://localhost:8080/v1/plugin/logging/log" -H "Content-Type: application/json" -d '{
+  "event": "e",
+  "timestamp": "2019-10-28T00:00:00Z",
+  "source": "source",
+  "level": "1"
+}'
+```
 
 ## plugin configuration format
 ```
