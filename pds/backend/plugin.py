@@ -36,25 +36,32 @@ def network():
 
 
 def run_container(pc):
+    name = pc["name"]
     client = docker.from_env()
     volumes = list(map(lambda l: Mount(l["target"], l["source"], type=l["type"], read_only=l["read_only"]), pc.get("volumes", [])))
-    logging.info("volumes = {0}".format(volumes))
-    print(client.containers)
-    ret = client.containers.run(pc["image"], environment=pc.get("environment", {}), network=network(), mounts=volumes, detach=True, stdout=True, stderr=True, name=pc["name"], hostname=pc["name"])
-    logging.info("ret = {0}".format(ret))
+    logging.info("pc = {0}".format(pc))
+    logging.info(f"starting {name}")
+    ret = client.containers.run(pc["image"], environment=pc.get("environment", {}), network=network(), mounts=volumes, detach=True, stdout=True, stderr=True, name=name, hostname=name)
+    logging.info(f"{name} started")
     return ret
 
 
 def stop_container(pc):
+    name = pc["name"]
     client = docker.from_env()
-    ret = client.containers.get(pc["name"])
+    ret = client.containers.get(name)
+    logging.info(f"stopping {name}")
     ret.stop()
+    logging.info(f"{name} stopped")
 
 
 def remove_container(pc):
+    name = pc["name"]
     client = docker.from_env()
-    ret = client.containers.get(pc["name"])
+    ret = client.containers.get(name)
+    logging.info(f"removing {name}")
     ret.remove()
+    logging.info(f"{name} removed")
 
 
 def load_plugins(f):
