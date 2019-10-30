@@ -32,10 +32,22 @@ parameters
 `model`: which model to use.
 
 This end point will construct the following calls to the model plugin:
+
+clinical feature variables
 ```
 curl -X GET http://<host>:<port>/v1/plugin/<model_plugin_id>/clinical_feature_variables
 ```
 
+This expects 
+```
+[{
+  "clinical_feature_variable": <clinical_feature_variable>,
+  "title": <title>,
+  "description": <description>
+}]
+```
+
+guidance
 ```
 curl -X POST http://<host>:<port>/v1/plugin/<model_plugin_id>/guidance/model -d '
 [{
