@@ -8,6 +8,20 @@ services:
       MONGO_COLLECTION: collection
       MONGO_NON_ROOT_USERNAME: pds
       MONGO_NON_ROOT_PASSWORD: aaa
+      DEFAULT_CONFIG: |
+        {
+          "aggregator_plugin_id": "pds-aggregator",
+          "phenotype_mapping_plugin_id": "pds-phenotype-mapping",
+          "data_provider_plugin_id": "pdsdpi-mock-fhir",
+          "profile_plugin_id": "pds-profile",
+          "model": [{
+            "drug": "d1",
+            "indications": [{
+              "indication": "i1",
+              "model_plugin_id": "pdsmpi-ref"
+            }]
+          }]
+        }
     port: 8080
     depends_on:
       - pdsconfig-mongodb
