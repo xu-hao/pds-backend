@@ -43,8 +43,9 @@ This expects
 [{
   "clinical_feature_variable": <clinical_feature_variable>,
   "title": <title>,
-  "description": <description>
-}]
+  "description": <description>,
+  ...
+}, ...]
 ```
 
 guidance
