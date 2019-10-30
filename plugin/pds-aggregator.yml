@@ -5,6 +5,6 @@ services:
     image: zooh/pds-aggregator:0.1.0
     environment:
       PDS_HOST: pds-backend
-      PDS_PORT: 8080
+      PDS_PORT: 8081
       PDS_CONFIG: pds-config
     
