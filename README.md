@@ -58,14 +58,13 @@ curl -X POST http://<host>:<port>/v1/plugin/<model_plugin_id>/guidance/model -d 
   "value", <value>,
   "calculation": <calculation>,
   "certitude": <certitude>
-}, ...]
-'
+}, ...]'
 ```
 
 
 
 #### model
-```curl http://<host>:<port>/v1/plugin/pdsmpi-ref/plugin path```
+```curl http://<host>:<port>/v1/plugin/<model_plugin_id>/plugin path```
 
 
 
