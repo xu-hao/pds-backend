@@ -2,7 +2,7 @@ services:
   pds-config:
     image: zooh/pds-config:0.1.0
     environment:
-      MONGO_HOST: pdsconfig-mongodb
+      MONGO_HOST: pds-config-mongodb
       MONGO_PORT: 27017
       MONGO_DATABASE: db
       MONGO_COLLECTION: collection
