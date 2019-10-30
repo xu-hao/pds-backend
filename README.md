@@ -50,7 +50,7 @@ This expects
 
 guidance
 ```
-curl -X POST http://<host>:<port>/v1/plugin/<model_plugin_id>/guidance/model -d '
+curl -X POST http://<host>:<port>/v1/plugin/<model_plugin_id>/guidance/{model} -d '
 [{
   "clinical_feature_variable": <clinical feature variable>,
   "title": <title>,
