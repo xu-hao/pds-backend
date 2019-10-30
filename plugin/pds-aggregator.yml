@@ -6,5 +6,5 @@ services:
     environment:
       PDS_HOST: pds-backend
       PDS_PORT: 8080
-      PDS_CONFIG: pdsconfig
+      PDS_CONFIG: pds-config
     
