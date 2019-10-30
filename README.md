@@ -64,7 +64,9 @@ curl -X POST http://<host>:<port>/v1/plugin/<model_plugin_id>/guidance/model -d 
 
 
 #### model
-```curl http://<host>:<port>/v1/plugin/<model_plugin_id>/plugin path```
+```
+curl http://<host>:<port>/v1/plugin/<model_plugin_id>/plugin path\
+```
 
 
 
@@ -114,14 +116,14 @@ curl "http://localhost:8080/v1/plugin/pdsmpi-ref/plugin path"
 
 #### profile
 ```
-curl "http://localhost:8080/v1/plugin/pds-profile/profile?data_provider_plugin_interface=pdsdpi-mock-fhir&phenotype_mapping_plugin_interface=pds-phenotype-mapping&model_plugin_interface=pdsmpi-ref&timestamp=2019-10-28T00:00:00Z&patient_id=38"
+curl "http://localhost:8080/v1/plugin/pds-profile/profile?data_provider_plugin_id=pdsdpi-mock-fhir&phenotype_mapping_plugin_id=pds-phenotype-mapping&model_plugin_id=pdsmpi-ref&timestamp=2019-10-28T00:00:00Z&patient_id=38"
 ```
 
-`data_provider_plugin_interface`: which data provider plugin interface to use.
+`data_provider_plugin_id`: which data provider plugin interface to use.
 
-`model_plugin_interface`: which model plugin interface to use.
+`model_plugin_id`: which model plugin interface to use.
 
-`phenotype_mapping_plugin_interface`: which phenotype mapping plugin interface to use.
+`phenotype_mapping_plugin_id`: which phenotype mapping plugin interface to use.
 
 `timestamp`: a time stamp in ISO 8601 format. This is used to calculate some of the features such as age.
 
