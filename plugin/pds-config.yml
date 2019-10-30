@@ -15,9 +15,33 @@ services:
           "data_provider_plugin_id": "pds-data-provider-mock-fhir",
           "profile_plugin_id": "pds-profile",
           "model": [{
-            "drug": "d1",
+            "drug": "gentamicin",
             "indications": [{
-              "indication": "i1",
+              "indication": "Pseudomonas aeruginosa",
+              "model_plugin_id": "pdsmpi-ref"
+            },
+            {
+              "indication": "Proteus species",
+              "model_plugin_id": "pdsmpi-ref"
+            },
+            {
+              "indication": "Escherichia coli",
+              "model_plugin_id": "pdsmpi-ref"
+            },
+            {
+              "indication": "Klebsiella-Enterobacter-Serratia species",
+              "model_plugin_id": "pdsmpi-ref"
+            },
+            {
+              "indication": "Citrobacter species",
+              "model_plugin_id": "pdsmpi-ref"
+            },
+            {
+              "indication": "Gram positive synergy (Enterococcal endocarditis)",
+              "model_plugin_id": "pdsmpi-ref"
+            },
+            {
+              "indication": "Staphylococcus species (coagulase-positive and coagulase-negative)",
               "model_plugin_id": "pdsmpi-ref"
             }]
           }]
