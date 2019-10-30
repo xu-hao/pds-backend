@@ -1,5 +1,5 @@
 services:
-  pdsconfig:
+  pds-config:
     image: zooh/pds-config:0.1.0
     environment:
       MONGO_HOST: pdsconfig-mongodb
@@ -24,8 +24,8 @@ services:
         }
     port: 8080
     depends_on:
-      - pdsconfig-mongodb
-  pdsconfig-mongodb:
+      - pds-config-mongodb
+  pds-config-mongodb:
     image: zooh/pds-mock-fhir-mongodb:0.1.0
     environment:
       MONGO_INITDB_ROOT_USERNAME: a
