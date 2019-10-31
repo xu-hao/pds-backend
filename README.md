@@ -96,17 +96,17 @@ parameters
 
 available variables
 ```
-    2160-0: serum creatinine
-    82810-3: pregnancy
+    LOINC:2160-0: serum creatinine
+    LOINC:82810-3: pregnancy
     HP:0001892: bleeding
     HP:0000077: kidney dysfunction
-    30525-0: Age
-    54134-2: Race
-    54120-1: Ethnicity
-    21840-4: Sex
-    8302-2: height
-    29463-7: weight
-    39156-5: bmi
+    LOINC:30525-0: Age
+    LOINC:54134-2: Race
+    LOINC:54120-1: Ethnicity
+    LOINC:21840-4: Sex
+    LOINC:8302-2: height
+    LOINC:29463-7: weight
+    LOINC:39156-5: bmi
 ```
 
 #### mpi
