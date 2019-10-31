@@ -65,7 +65,7 @@ curl -X POST https://<host>:<port>/v1/plugin/<model_plugin_id>/guidance/{model} 
 
 #### model
 ```
-curl -k https://<host>:<port>/v1/plugin/<model_plugin_id>/plugin path\
+curl -k https://<host>:<port>/v1/plugin/<model_plugin_id>/plugin path
 ```
 
 
