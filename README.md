@@ -16,10 +16,10 @@ docker-compose up --build -d
 ### urls for frontend
 
 #### config
-```curl https://<host>:<port>/v1/plugin/pds-config/config```
+```curl -k https://<host>:<port>/v1/plugin/pds-config/config```
 
 #### aggregator
-```curl https://<host>:<port>/v1/plugin/pds-aggregator/guidance?patient_id=<patient_id>&model=<model>&model_plugin_id=<model_plugin_id>&timestamp=<timestamp>```
+```curl -k https://<host>:<port>/v1/plugin/pds-aggregator/guidance?patient_id=<patient_id>&model=<model>&model_plugin_id=<model_plugin_id>&timestamp=<timestamp>```
 
 parameters
 
@@ -65,7 +65,7 @@ curl -X POST https://<host>:<port>/v1/plugin/<model_plugin_id>/guidance/{model} 
 
 #### model
 ```
-curl https://<host>:<port>/v1/plugin/<model_plugin_id>/plugin path\
+curl -k https://<host>:<port>/v1/plugin/<model_plugin_id>/plugin path\
 ```
 
 
@@ -75,7 +75,7 @@ curl https://<host>:<port>/v1/plugin/<model_plugin_id>/plugin path\
 
 #### dpi
 ```
-curl https://localhost:8080/v1/plugin/pds-data-provider-mock-fhir/Patient/38
+curl -k https://localhost:8080/v1/plugin/pds-data-provider-mock-fhir/Patient/38
 ```
 
 #### phenotype mapper
