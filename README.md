@@ -116,7 +116,7 @@ curl "https://localhost:8080/v1/plugin/pdsmpi-ref/plugin path"
 
 #### profile
 ```
-curl "https://localhost:8080/v1/plugin/pds-profile/profile?data_provider_plugin_id=pdsdpi-mock-fhir&phenotype_mapping_plugin_id=pds-phenotype-mapping&model_plugin_id=pdsmpi-ref&timestamp=2019-10-28T00:00:00Z&patient_id=38"
+curl "https://localhost:8080/v1/plugin/pds-profile/profile?data_provider_plugin_id=pds-data-provider-mock-fhir&phenotype_mapping_plugin_id=pds-phenotype-mapping&model_plugin_id=pdsmpi-ref&timestamp=2019-10-28T00:00:00Z&patient_id=38"
 ```
 
 `data_provider_plugin_id`: which data provider plugin interface to use.
