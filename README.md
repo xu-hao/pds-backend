@@ -81,7 +81,7 @@ curl -k https://localhost:8080/v1/plugin/pds-data-provider-mock-fhir/Patient/38
 #### phenotype mapper
 
 ```
-curl "https://localhost:8080/v1/plugin/pds-phenotype-mapping/mapping?data_provider_plugin_id=pdsdpi-mock-fhir&timestamp=2019-10-28T00:00:00Z&patient_id=38&clinical_feature_variable=age"
+curl "https://localhost:8080/v1/plugin/pds-phenotype-mapping/mapping?data_provider_plugin_id=pds-datt-provider-mock-fhir&timestamp=2019-10-28T00:00:00Z&patient_id=38&clinical_feature_variable=age"
 ```
 
 parameters
