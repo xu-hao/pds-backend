@@ -4,6 +4,8 @@ import docker
 from docker.types import Mount
 import os
 import yaml
+import sys
+import time
 from .plugin_config import add_plugin_configs, delete_plugin_configs, from_docker_compose, sort_plugin_configs
 
 logger = logging.getLogger()
@@ -52,7 +54,10 @@ def stop_container(pc):
     ret = client.containers.get(name)
     logging.info(f"stopping {name}")
     ret.stop()
-    logging.info(f"{name} stopped")
+    logging.info(f"waiting for {name} to exit")
+    exit_code = ret.wait()
+    logging.info(f"{name} stopped {exit_code}")
+    sys.stdout.flush()
 
 
 def remove_container(pc):
@@ -64,34 +69,80 @@ def remove_container(pc):
     logging.info(f"{name} removed")
 
 
-def load_plugins(f):
+def load_plugins_from_file(f):
     return from_docker_compose(yaml.safe_load(f))
 
 
+def load_plugins(init_plugin_path):
+    pcs = []
+    vs = []
+    for fn in os.listdir(init_plugin_path):
+        if fn.endswith(".yml") or fn.endswith(".yaml"):
+            with open(os.path.join(init_plugin_path, fn), "r") as f:
+                services, volumes = load_plugins_from_file(f)
+                pcs.extend(services)
+                vs.extend(volumes)
+    return pcs, vs
+
+
+def create_volume(v):
+    client = docker.from_env()
+    name = v["name"]
+    vol = None
+
+    if v.get("persistent", False):
+        try:
+            vol = client.volumes.get(name)
+        except docker.errors.NotFound:
+            pass
+
+    if vol is None:
+        try:
+            client.volumes.get(name)
+            raise RuntimeError(f"cannot create an existing volume {name}")
+        except docker.errors.NotFound:
+            vol = client.volumes.create(name)
+            
+    return vol
+
+
+def create_volumes(vs):
+    for v in vs:
+        create_volume(v)
+
+
+def delete_volume(v):
+    client = docker.from_env()
+    if not v.get("persistent", False):
+        client.volumes.get(v["name"]).remove()
+
+
+def delete_volumes(vs):
+    for v in vs:
+        delete_volume(v)
+        
+    
 def init_plugin():
     init_plugin_path = os.environ.get("INIT_PLUGIN_PATH")
 
     if init_plugin_path is not None:
-        for fn in os.listdir(init_plugin_path):
-            if fn.endswith(".yml") or fn.endswith(".yaml"):
-                with open(os.path.join(init_plugin_path, fn), "r") as f:
-                    pcs = load_plugins(f)
-                    start_plugins(pcs)
-                    add_plugin_configs(pcs)    
+        pcs, vs = load_plugins(init_plugin_path)
+        create_volumes(vs)
+        start_plugins(pcs)
+        add_plugin_configs(pcs)    
 
 
 def delete_init_plugin():
     init_plugin_path = os.environ.get("INIT_PLUGIN_PATH")
 
     if init_plugin_path is not None:
-        for fn in os.listdir(init_plugin_path):
-            if fn.endswith(".yml") or fn.endswith(".yaml"):
-                with open(os.path.join(init_plugin_path, fn), "r") as f:
-                    pcs = load_plugins(f)
-                    stop_plugins(pcs)
-                    remove_plugins(pcs)
-                    for pc in pcs:
-                        delete_plugin_configs(pc)
+        pcs, vs = load_plugins(init_plugin_path)
+        stop_plugins(pcs)
+        remove_plugins(pcs)
+        delete_volumes(vs)
+        for pc in pcs:
+            delete_plugin_configs(pc)
+
 
 
 

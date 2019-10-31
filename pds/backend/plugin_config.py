@@ -36,12 +36,13 @@ def get_plugin_ids(fil):
 
 
 def add_plugin_configs(ps):
-    with plugin_db() as collection:
-        for pc in ps:
-            name = pc["name"]
-            if len(get_plugin_configs({"name": name})) > 0:
-                raise RuntimeError("plugin name \"{name}\" already exists in database".format(name=name))
-        return collection.insert_many(ps).inserted_ids
+    if len(ps) > 0:
+        with plugin_db() as collection:
+            for pc in ps:
+                name = pc["name"]
+                if len(get_plugin_configs({"name": name})) > 0:
+                    raise RuntimeError("plugin name \"{name}\" already exists in database".format(name=name))
+            return collection.insert_many(ps).inserted_ids
     
     
 def update_plugin_configs(fil, update):
@@ -65,8 +66,9 @@ def delete_plugin_config(name):
     with plugin_db() as collection:
         return collection.delete_one({"name": name}).deleted_count
 
+    
 def from_docker_compose(a):
-    return list(map(lambda x: {"name": x[0], **x[1]}, a["services"].items()))
+    return list(map(lambda x: {"name": x[0], **x[1]}, a.get("services", {}).items())), list(map(lambda x: {"name": x[0], **x[1]}, a.get("volumes", {}).items()))
 
 
 def delete_from_dict(d, k):

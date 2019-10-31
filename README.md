@@ -10,7 +10,7 @@ The default port is `8080`, if you want to change the port, update in `.env` fil
 
 To start `pds-backend`
 ```
-docker-compose up --build -d
+docker-compose -f docker-compose.yml -f nginx/insecure/docker-compose.yml up --build -d
 ```
 
 ### urls for frontend
