@@ -63,11 +63,6 @@ def get_plugin_configs(name=None, name_regex=None):
     return ps
 
 
-def get_plugin_ids(name=None, name_regex=None):
-    ids = plugin_config.get_plugin_ids(fil(name, name_regex))
-    return ids
-
-
 def add_plugin_configs(body):
     pc = plugin_config.add_plugin_configs(body)
     return len(pc)

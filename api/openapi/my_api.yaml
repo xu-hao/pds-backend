@@ -74,43 +74,13 @@ paths:
   #         description: successful operation
   #       '400':
   #         description: Invalid value
-  /v1/metadata/plugin:
-    get:
-      tags:
-        - metadata
-      summary: get plugin ids
-      security:
-        - jwt:
-          - admin
-      operationId: api.get_plugin_ids
-      parameters:
-        - in: query
-          name: name
-          schema:
-            type: string
-        - in: query
-          name: name_regex
-          schema:
-            type: string
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  type: string
-        '400':
-          description: Invalid value
   /v1/admin/plugin:
     put:
       tags:
         - admin
       summary: create a new plugin
       security:
-        - jwt:
-          - admin
+        - oauth2: ["admin"]
       operationId: api.add_plugin_configs
       requestBody:
         content:
@@ -133,8 +103,7 @@ paths:
         - admin
       summary: get plugin configs
       security:
-        - jwt:
-          - admin
+        - oauth2: ["admin"]
       operationId: api.get_plugin_configs
       parameters:
         - in: query
@@ -161,8 +130,7 @@ paths:
         - admin
       summary: delete plugin configs
       security:
-        - jwt:
-          - admin
+        - oauth2: ["admin"]
       operationId: api.delete_plugin_configs
       parameters:
         - in: query
@@ -188,8 +156,7 @@ paths:
         - admin
       summary: get plugin configs
       security:
-        - jwt:
-          - admin
+        - oauth2: ["admin"]
       operationId: api.get_plugin_config
       parameters:
         - in: path
@@ -211,8 +178,7 @@ paths:
         - admin
       summary: delete plugin config
       security:
-        - jwt:
-          - admin
+        - oauth2: ["admin"]
       operationId: api.delete_plugin_config
       parameters:
         - in: path
@@ -230,8 +196,7 @@ paths:
         - admin
       summary: update plugin config
       security:
-        - jwt:
-          - admin
+        - oauth2: ["admin"]
       operationId: api.update_plugin_config
       parameters:
         - in: path
@@ -255,8 +220,7 @@ paths:
         - admin
       summary: get plugin container
       security:
-        - jwt:
-          - admin
+        - oauth2: ["admin"]
       operationId: api.get_plugin_container
       parameters:
         - in: path
@@ -278,8 +242,7 @@ paths:
         - admin
       summary: create plugin container
       security:
-        - jwt:
-          - admin
+        - oauth2: ["admin"]
       operationId: api.add_plugin_container
       parameters:
         - in: path
@@ -297,8 +260,7 @@ paths:
         - admin
       summary: update plugin container
       security:
-        - jwt:
-          - admin
+        - oauth2: ["admin"]
       operationId: api.delete_plugin_container
       parameters:
         - in: path
@@ -318,8 +280,7 @@ paths:
         - admin
       summary: get container
       security:
-        - jwt:
-          - admin
+        - oauth2: ["admin"]
       operationId: api.get_containers
       parameters:  []
       responses:
@@ -336,8 +297,7 @@ paths:
         - admin
       summary: create container
       security:
-        - jwt:
-          - admin
+        - oauth2: ["admin"]
       operationId: api.add_containers
       parameters: []
       responses:
@@ -350,8 +310,7 @@ paths:
         - admin
       summary: delete container
       security:
-        - jwt:
-          - admin
+        - oauth2: ["admin"]
       operationId: api.delete_containers
       parameters: []
       responses:
@@ -403,8 +362,12 @@ components:
     ContainerStatus:
       type: object
   securitySchemes:
-    jwt:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      x-bearerInfoFunc: api.jwt.decode_token
+    oauth2:
+      type: oauth2
+      x-tokenInfoFunc: api.jwt.decode_token
+      flows:
+        implicit:
+          authorizationUrl: https://example.com/oauth2/dialog
+          scopes:
+            admin: admin
+            guest: guest

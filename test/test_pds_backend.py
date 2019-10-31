@@ -13,20 +13,21 @@ import tempfile
 from bson.objectid import ObjectId
 import api
 import yaml
-from requests_jwt import JWTAuth
 from debug.utils import bag_equal, bag_contains
 from pds.backend.plugin_config import to_docker_compose
-from api.jwt import JWT_SECRET, JWT_ALGORITHM
+from api.jwt import generate_token
 
 CLIENT_DELAY = 1
 
-auth = JWTAuth(JWT_SECRET, JWT_ALGORITHM, "Bearer %s")
-auth.add_field("sub", "test")
-auth.add_field("scope", ["admin"])
+auth_token = generate_token( "test", ["admin"])
 
-auth2 = JWTAuth(JWT_SECRET, JWT_ALGORITHM, "Bearer %s")
-auth2.add_field("sub", "test2")
-auth2.add_field("scope", ["guest"])
+auth_token2 = generate_token( "test2", ["guest"])
+
+headers = {"Authorization": f"Bearer {auth_token}"}
+
+headers2 = {"Authorization": f"Bearer {auth_token2}"}
+
+base_url = "https://pds-backend:8080/v1"
 
 @pytest.fixture(scope="session", autouse=True)
 def pause():
@@ -583,7 +584,7 @@ def test_delete_plugin_configs_name_regex():
 def test_add_plugin_config_api():
     try:
         apc = pc("/tmp")
-        resp = requests.put("http://pds-backend:8080/v1/admin/plugin", headers={"Content-Type": "application/json"}, json=[apc], auth=auth)
+        resp = requests.put(f"{base_url}/admin/plugin", headers={"Content-Type": "application/json", **headers}, json=[apc], verify=False)
         assert resp.status_code == 200
         ps = plugin_config.get_plugin_configs({})
         assert len(ps) == 1
@@ -597,13 +598,13 @@ def test_update_plugin_config_api():
     try:
         apc = pc("/tmp")
         apc2 = pc2("/tmp")
-        resp = requests.put("http://pds-backend:8080/v1/admin/plugin", headers={"Content-Type": "application/json"}, json=[apc], auth=auth)
+        resp = requests.put(f"{base_url}/admin/plugin", headers={"Content-Type": "application/json", **headers}, json=[apc], verify=False)
         assert resp.status_code == 200
         ps = plugin_config.get_plugin_configs({})
         assert len(ps) == 1
         ps = plugin_config.get_plugin_configs(fil)
         assert len(ps) == 1
-        resp = requests.post("http://pds-backend:8080/v1/admin/plugin/{name}".format(name=name), headers={"Content-Type": "application/json"}, json=apc2, auth=auth)
+        resp = requests.post(f"{base_url}/admin/plugin/{name}", headers={"Content-Type": "application/json", **headers}, json=apc2, verify=False)
         assert resp.status_code == 200
         ps = plugin_config.get_plugin_configs({})
         assert len(ps) == 1
@@ -618,13 +619,13 @@ def test_update_plugin_config_api():
 def test_delete_plugin_config_api():
     try:
         apc = pc("/tmp")
-        resp = requests.put("http://pds-backend:8080/v1/admin/plugin", headers={"Content-Type": "application/json"}, json=[apc], auth=auth)
+        resp = requests.put(f"{base_url}/admin/plugin", headers={"Content-Type": "application/json", **headers}, json=[apc], verify=False)
         assert resp.status_code == 200
         ps = plugin_config.get_plugin_configs({})
         assert len(ps) == 1
         ps = plugin_config.get_plugin_configs(fil)
         assert len(ps) == 1
-        resp = requests.delete("http://pds-backend:8080/v1/admin/plugin/{name}".format(name=name), auth=auth)
+        resp = requests.delete(f"{base_url}/admin/plugin/{name}", headers=headers, verify=False)
         assert resp.status_code == 200
         ps = plugin_config.get_plugin_configs({})
         assert len(ps) == 0
@@ -637,13 +638,13 @@ def test_delete_plugin_config_api():
 def test_delete_plugin_configs_api_name():
     try:
         apc = pc("/tmp")
-        resp = requests.put("http://pds-backend:8080/v1/admin/plugin", headers={"Content-Type": "application/json"}, json=[apc], auth=auth)
+        resp = requests.put(f"{base_url}/admin/plugin", headers={"Content-Type": "application/json", **headers}, json=[apc], verify=False)
         assert resp.status_code == 200
         ps = plugin_config.get_plugin_configs({})
         assert len(ps) == 1
         ps = plugin_config.get_plugin_configs(fil)
         assert len(ps) == 1
-        resp = requests.delete("http://pds-backend:8080/v1/admin/plugin?name={name}".format(name=name), auth=auth)
+        resp = requests.delete(f"{base_url}/admin/plugin?name={name}", headers=headers, verify=False)
         assert resp.status_code == 200
         ps = plugin_config.get_plugin_configs({})
         assert len(ps) == 0
@@ -657,15 +658,15 @@ def test_delete_plugin_configs_api_name_regex():
     try:
         apc = pc("/tmp")
         apc2 = pc2("/tmp")
-        resp = requests.put("http://pds-backend:8080/v1/admin/plugin", headers={"Content-Type": "application/json"}, json=[apc], auth=auth)
+        resp = requests.put(f"{base_url}/admin/plugin", headers={"Content-Type": "application/json", **headers}, json=[apc], verify=False)
         assert resp.status_code == 200
-        resp = requests.put("http://pds-backend:8080/v1/admin/plugin", headers={"Content-Type": "application/json"}, json=[apc2], auth=auth)
+        resp = requests.put(f"{base_url}/admin/plugin", headers={"Content-Type": "application/json", **headers}, json=[apc2], verify=False)
         assert resp.status_code == 200
         ps = plugin_config.get_plugin_configs({})
         assert len(ps) == 2
         ps = plugin_config.get_plugin_configs(fil)
         assert len(ps) == 1
-        resp = requests.delete("http://pds-backend:8080/v1/admin/plugin?name_regex=nginx.*", auth=auth)
+        resp = requests.delete(f"{base_url}/admin/plugin?name_regex=nginx.*", headers=headers, verify=False)
         assert resp.status_code == 200
         ps = plugin_config.get_plugin_configs({})
         assert len(ps) == 0
@@ -690,7 +691,7 @@ def test_run_plugin_container():
             apc = ps[0]
             plugin.run_container(apc)
         
-            resp = requests.get("http://pds-backend:8080/v1/plugin/{name}/index.json".format(name=name))
+            resp = requests.get(f"{base_url}/plugin/{name}/index.json", verify=False)
         
             assert resp.status_code == 200
             assert resp.json() == s
@@ -700,13 +701,13 @@ def test_run_plugin_container():
 
 
 def test_run_non_existent_plugin_container_get():
-    resp = requests.get("http://pds-backend:8080/v1/plugin/nonplugin/index.json")
+    resp = requests.get(f"{base_url}/plugin/nonplugin/index.json", verify=False)
 
     assert resp.status_code == 404
 
 
 def test_run_non_existent_plugin_container_post():
-    resp = requests.post("http://pds-backend:8080/v1/plugin/notaplugin/index.json")
+    resp = requests.post(f"{base_url}/plugin/notaplugin/index.json", verify=False)
 
     assert resp.status_code == 404
 
@@ -723,7 +724,7 @@ def test_run_plugin_container_get_echo_405():
         plugin.run_container(apc)
         
         time.sleep(CLIENT_DELAY)
-        resp = requests.get("http://pds-backend:8080/v1/plugin/{name}/index.json?status=405".format(name=container_name))
+        resp = requests.get(f"{base_url}/plugin/{container_name}/index.json?status=405", verify=False)
         
         assert resp.status_code == 405
     finally:
@@ -744,7 +745,7 @@ def test_run_plugin_container_post_echo_405():
         plugin.run_container(apc)
         
         time.sleep(CLIENT_DELAY)
-        resp = requests.post("http://pds-backend:8080/v1/plugin/{name}/index.json?status=405".format(name=container_name), headers={"Content-Type": "application/json"}, json=s)
+        resp = requests.post(f"{base_url}/plugin/{container_name}/index.json?status=405", headers={"Content-Type": "application/json"}, json=s, verify=False)
 
         assert resp.status_code == 405
 
@@ -767,10 +768,10 @@ def test_run_plugin_container_api():
             assert len(ps) == 1
             apc = ps[0]
 
-            resp = requests.put("http://pds-backend:8080/v1/admin/plugin/{name}/container".format(name=name), auth=auth)
+            resp = requests.put(f"{base_url}/admin/plugin/{name}/container", headers=headers, verify=False)
             assert resp.status_code == 200
 
-            resp = requests.get("http://pds-backend:8080/v1/plugin/{name}/index.json".format(name=name))
+            resp = requests.get(f"{base_url}/plugin/{name}/index.json", verify=False)
 
             assert resp.status_code == 200
             assert resp.json() == s
@@ -794,10 +795,10 @@ def test_get_plugin_config_api():
             apc = ps[0]
             apc["_id"] = str(apc["_id"])
 
-            resp = requests.put("http://pds-backend:8080/v1/admin/plugin/{name}/container".format(name=name), auth=auth)
+            resp = requests.put(f"{base_url}/admin/plugin/{name}/container", headers=headers, verify=False)
             assert resp.status_code == 200
 
-            resp = requests.get("http://pds-backend:8080/v1/admin/plugin/{name}".format(name=name))
+            resp = requests.get(f"{base_url}/admin/plugin/{name}", headers=headers, verify=False)
 
             assert resp.status_code == 200
             assert resp.json() == apc
@@ -821,7 +822,7 @@ def test_get_plugin_configs_api_name():
             apc = ps[0]
             apc["_id"] = str(apc["_id"])
 
-            resp = requests.get("http://pds-backend:8080/v1/admin/plugin?name={name}".format(name=name), auth=auth)
+            resp = requests.get(f"{base_url}/admin/plugin?name={name}", headers=headers, verify=False)
 
             assert resp.status_code == 200
             assert resp.json() == [apc]
@@ -871,7 +872,7 @@ def test_get_plugin_configs_api_name_regex():
             for apc0 in ps:
                 apc0["_id"] = str(apc0["_id"])
 
-            resp = requests.get("http://pds-backend:8080/v1/admin/plugin?name_regex={name_regex}".format(name_regex="nginx.*"), auth=auth)
+            resp = requests.get(f"{base_url}/admin/plugin?name_regex=nginx.*", headers=headers, verify=False)
 
             assert resp.status_code == 200
             assert bag_equal(resp.json(), ps)
@@ -893,10 +894,10 @@ def test_get_plugin_container_api():
             assert len(ps) == 1
             apc = ps[0]
 
-            resp = requests.put("http://pds-backend:8080/v1/admin/plugin/{name}/container".format(name=name), auth=auth)
+            resp = requests.put(f"{base_url}/admin/plugin/{name}/container", headers=headers, verify=False)
             assert resp.status_code == 200
 
-            resp = requests.get("http://pds-backend:8080/v1/admin/plugin/{name}/container".format(name=name), auth=auth)
+            resp = requests.get(f"{base_url}/admin/plugin/{name}/container", headers=headers, verify=False)
 
             assert resp.status_code == 200
             assert resp.json() == {"status": "running"}
@@ -920,14 +921,14 @@ def test_run_plugin_containers_api():
             assert len(ps) == 2
             apc = ps[0]
 
-            resp = requests.put("http://pds-backend:8080/v1/admin/container")
+            resp = requests.put(f"{base_url}/admin/container", headers=headers, verify=False)
             assert resp.status_code == 200
 
-            resp = requests.get("http://pds-backend:8080/v1/plugin/{name}/index.json".format(name=name))
+            resp = requests.get(f"{base_url}/plugin/{name}/index.json", verify=False)
 
             assert resp.status_code == 200
             assert resp.json() == s
-            resp2 = requests.get("http://pds-backend:8080/v1/plugin/{name}/index.json".format(name=name2))
+            resp2 = requests.get(f"{base_url}/plugin/{name2}/index.json", verify=False)
 
             assert resp2.status_code == 200
             assert resp2.json() == s
@@ -951,10 +952,10 @@ def test_get_plugin_containers_api():
             assert len(ps) == 2
             apc = ps[0]
 
-            resp = requests.put("http://pds-backend:8080/v1/admin/container", auth=auth)
+            resp = requests.put(f"{base_url}/admin/container", headers=headers, verify=False)
             assert resp.status_code == 200
 
-            resp = requests.get("http://pds-backend:8080/v1/admin/container", auth=auth)
+            resp = requests.get(f"{base_url}/admin/container", headers=headers, verify=False)
 
             assert resp.status_code == 200
             assert bag_equal(resp.json(), [{"name": name, "container": {"status": "running"}}, {"name": name2, "container": {"status": "running"}}])
@@ -964,18 +965,21 @@ def test_get_plugin_containers_api():
 
 
 def test_auth():
-    resp = requests.get("http://pds-backend:8080/v1/metadata/plugin", auth=auth)
+    resp = requests.get(f"{base_url}/admin/plugin", headers=headers, verify=False)
     print(resp.text)
-    assert resp.status_code == 202
+    assert resp.status_code == 200
     
     
 def test_auth_401():
-    resp = requests.get("http://pds-backend:8080/v1/metadata/plugin")
+    resp = requests.get(f"{base_url}/admin/plugin", verify=False)
     print(resp.text)
     assert resp.status_code == 401
 
     
 def test_auth_403():
-    resp = requests.get("http://pds-backend:8080/v1/metadata/plugin", auth=auth2)
+    resp = requests.get(f"{base_url}/admin/plugin", headers=headers2, verify=False)
     print(resp.text)
     assert resp.status_code == 403
+
+
+
