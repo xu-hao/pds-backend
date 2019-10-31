@@ -4,8 +4,10 @@ RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
 RUN apk add gcc musl-dev
+RUN apk add libffi-dev
+RUN apk add openssl-dev
 
-RUN pip3 install --no-cache-dir connexion pymongo docker gunicorn[gevent] flask-cors python-dateutil
+RUN pip3 install --no-cache-dir connexion pymongo docker gunicorn[gevent] flask-cors python-dateutil python-jose[cryptography]
 
 COPY api /usr/src/app/api
 COPY pds /usr/src/app/pds

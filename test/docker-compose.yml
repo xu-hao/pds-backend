@@ -8,7 +8,7 @@ services:
       context: .
       dockerfile: test/Dockerfile
     image: pds-backend-test:0.1.0
-    command: ["-s", "-v", "-x"] # , "-k", "test_run_plugin_container_get_echo_405"]
+    command: ["-s", "-v", "-x", "-k", "test_auth"]
     environment:
       COMPOSE_PROJECT_NAME: $COMPOSE_PROJECT_NAME
       MONGO_HOST: mongodb
@@ -17,6 +17,7 @@ services:
       MONGO_DATABASE: $MONGO_DATABASE
       MONGO_USERNAME: $MONGO_NON_ROOT_USERNAME
       MONGO_PASSWORD: $MONGO_NON_ROOT_PASSWORD
+      JWT_SECRET: $JWT_SECRET
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp:/tmp

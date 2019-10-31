@@ -79,6 +79,9 @@ paths:
       tags:
         - metadata
       summary: get plugin ids
+      security:
+        - jwt:
+          - admin
       operationId: api.get_plugin_ids
       parameters:
         - in: query
@@ -105,6 +108,9 @@ paths:
       tags:
         - admin
       summary: create a new plugin
+      security:
+        - jwt:
+          - admin
       operationId: api.add_plugin_configs
       requestBody:
         content:
@@ -126,6 +132,9 @@ paths:
       tags:
         - admin
       summary: get plugin configs
+      security:
+        - jwt:
+          - admin
       operationId: api.get_plugin_configs
       parameters:
         - in: query
@@ -151,6 +160,9 @@ paths:
       tags:
         - admin
       summary: delete plugin configs
+      security:
+        - jwt:
+          - admin
       operationId: api.delete_plugin_configs
       parameters:
         - in: query
@@ -175,6 +187,9 @@ paths:
       tags:
         - admin
       summary: get plugin configs
+      security:
+        - jwt:
+          - admin
       operationId: api.get_plugin_config
       parameters:
         - in: path
@@ -195,6 +210,9 @@ paths:
       tags:
         - admin
       summary: delete plugin config
+      security:
+        - jwt:
+          - admin
       operationId: api.delete_plugin_config
       parameters:
         - in: path
@@ -210,7 +228,10 @@ paths:
     post:
       tags:
         - admin
-      description: update plugin config
+      summary: update plugin config
+      security:
+        - jwt:
+          - admin
       operationId: api.update_plugin_config
       parameters:
         - in: path
@@ -233,6 +254,9 @@ paths:
       tags:
         - admin
       summary: get plugin container
+      security:
+        - jwt:
+          - admin
       operationId: api.get_plugin_container
       parameters:
         - in: path
@@ -253,6 +277,9 @@ paths:
       tags:
         - admin
       summary: create plugin container
+      security:
+        - jwt:
+          - admin
       operationId: api.add_plugin_container
       parameters:
         - in: path
@@ -268,7 +295,10 @@ paths:
     delete:
       tags:
         - admin
-      description: update plugin container
+      summary: update plugin container
+      security:
+        - jwt:
+          - admin
       operationId: api.delete_plugin_container
       parameters:
         - in: path
@@ -287,6 +317,9 @@ paths:
       tags:
         - admin
       summary: get container
+      security:
+        - jwt:
+          - admin
       operationId: api.get_containers
       parameters:  []
       responses:
@@ -302,6 +335,9 @@ paths:
       tags:
         - admin
       summary: create container
+      security:
+        - jwt:
+          - admin
       operationId: api.add_containers
       parameters: []
       responses:
@@ -312,7 +348,10 @@ paths:
     delete:
       tags:
         - admin
-      description: delete container
+      summary: delete container
+      security:
+        - jwt:
+          - admin
       operationId: api.delete_containers
       parameters: []
       responses:
@@ -363,3 +402,9 @@ components:
       additionalProperties: false
     ContainerStatus:
       type: object
+  securitySchemes:
+    jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      x-bearerInfoFunc: api.jwt.decode_token

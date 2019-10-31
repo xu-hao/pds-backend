@@ -1,6 +1,6 @@
 import requests
 from pds.backend import plugin_config, plugin
-from .logging import l
+from pds.backend.logging import l
 import logging
 import connexion
 import sys
