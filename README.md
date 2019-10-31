@@ -35,7 +35,7 @@ This end point will construct the following calls to the model plugin:
 
 clinical feature variables
 ```
-curl -X GET https://<host>:<port>/v1/plugin/<model_plugin_id>/clinical_feature_variables
+curl -k -X GET https://<host>:<port>/v1/plugin/<model_plugin_id>/clinical_feature_variables
 ```
 
 This expects 
@@ -50,7 +50,7 @@ This expects
 
 guidance
 ```
-curl -X POST https://<host>:<port>/v1/plugin/<model_plugin_id>/guidance/{model} -d '
+curl -k -X POST https://<host>:<port>/v1/plugin/<model_plugin_id>/guidance/{model} -d '
 [{
   "clinical_feature_variable": <clinical feature variable>,
   "title": <title>,
@@ -75,13 +75,13 @@ curl -k https://<host>:<port>/v1/plugin/<model_plugin_id>/plugin path
 
 #### dpi
 ```
-curl -k https://localhost:8080/v1/plugin/pds-data-provider-mock-fhir/Patient/38
+curl -k https://<host>:<port>/v1/plugin/pds-data-provider-mock-fhir/Patient/38
 ```
 
 #### phenotype mapper
 
 ```
-curl "https://localhost:8080/v1/plugin/pds-phenotype-mapping/mapping?data_provider_plugin_id=pdsdpi-mock-fhir&timestamp=2019-10-28T00:00:00Z&patient_id=38&clinical_feature_variable=age"
+curl -k "https://<host>:<port>/v1/plugin/pds-phenotype-mapping/mapping?data_provider_plugin_id=pds-data-provider-mock-fhir&timestamp=2019-10-28T00:00:00Z&patient_id=38&clinical_feature_variable=LOINC:30525-0"
 ```
 
 parameters
@@ -96,27 +96,27 @@ parameters
 
 available variables
 ```
-    2160-0: serum creatinine
-    82810-3: pregnancy
+    LOINC:2160-0: serum creatinine
+    LOINC:82810-3: pregnancy
     HP:0001892: bleeding
     HP:0000077: kidney dysfunction
-    30525-0: Age
-    54134-2: Race
-    54120-1: Ethnicity
-    21840-4: Sex
-    8302-2: height
-    29463-7: weight
-    39156-5: bmi
+    LOINC:30525-0: Age
+    LOINC:54134-2: Race
+    LOINC:54120-1: Ethnicity
+    LOINC:21840-4: Sex
+    LOINC:8302-2: height
+    LOINC:29463-7: weight
+    LOINC:39156-5: bmi
 ```
 
 #### mpi
 ```
-curl "https://localhost:8080/v1/plugin/pdsmpi-ref/plugin path"
+curl -k "https://<host>:<port>/v1/plugin/pdsmpi-ref/plugin path"
 ```
 
 #### profile
 ```
-curl "https://localhost:8080/v1/plugin/pds-profile/profile?data_provider_plugin_id=pdsdpi-mock-fhir&phenotype_mapping_plugin_id=pds-phenotype-mapping&model_plugin_id=pdsmpi-ref&timestamp=2019-10-28T00:00:00Z&patient_id=38"
+curl -k "https://<host>:<port>/v1/plugin/pds-profile/profile?data_provider_plugin_id=pds-data-provider-mock-fhir&phenotype_mapping_plugin_id=pds-phenotype-mapping&model_plugin_id=pdsmpi-ref&timestamp=2019-10-28T00:00:00Z&patient_id=38"
 ```
 
 `data_provider_plugin_id`: which data provider plugin interface to use.
@@ -131,7 +131,7 @@ curl "https://localhost:8080/v1/plugin/pds-profile/profile?data_provider_plugin_
 
 #### logging
 ```
-curl -X POST "https://localhost:8080/v1/plugin/logging/log" -H "Content-Type: application/json" -d '{
+curl -k -X POST "https://<host>:<port>/v1/plugin/logging/log" -H "Content-Type: application/json" -d '{
   "event": "e",
   "timestamp": "2019-10-28T00:00:00Z",
   "source": "source",
