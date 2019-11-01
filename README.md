@@ -4,7 +4,7 @@
 
 ### set port
 
-The default port is `8080`, if you want to change the port, update in `.env` file `API_PORT`. We assume that we use the default port in the following.
+The default port is `8080`, if you want to change the port, update in `.env` file `API_PORT`.
 
 ### run command
 
@@ -14,7 +14,7 @@ The default port is `8080`, if you want to change the port, update in `.env` fil
 docker-compose -f docker-compose.yml -f nginx/unsecure/docker-compose.yml up --build -d
 ```
 
-#### stop `pds-backend`
+##### stop `pds-backend`
 ```
 docker-compose -f docker-compose.yml -f nginx/unsecure/docker-compose.yml up down -t <timeout>
 ```
@@ -34,7 +34,7 @@ set `SSL_CERT_DIR` to a directory containing `cert.pem` and `key.pem`
 docker-compose -f docker-compose.yml -f nginx/secure/docker-compose.yml up --build -d
 ```
 
-#### stop `pds-backend`
+##### stop `pds-backend`
 ```
 docker-compose -f docker-compose.yml -f nginx/secure/docker-compose.yml up down -t <timeout>
 ```
@@ -100,6 +100,10 @@ curl -k https://<host>:<port>/v1/plugin/<model_plugin_id>/plugin path
 
 
 ### urls for plugins
+
+```
+curl -k "https://<host>:<port>/v1/plugin/<name>/<path>"
+```
 
 #### dpi
 ```
@@ -200,16 +204,12 @@ services:
         read_only: <read only>
     depends_on:
       - <service>
-```
-
-
-
-## run
-```
-docker-compose -f docker-compose.yml up --build -V
+volumes:
+  <name>:
+    persistent: <persistent>
 ```
 
 ## test
 ```
-docker-compose -f docker-compose.yml -f test/docker-compose.yml up --build -V --exit-code-from pds-backend-test
+./test.sh
 ```
