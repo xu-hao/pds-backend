@@ -101,6 +101,10 @@ curl -k https://<host>:<port>/v1/plugin/<model_plugin_id>/plugin path
 
 ### urls for plugins
 
+```
+curl -k "https://<host>:<port>/v1/plugin/<plugin_name>/<plugin_path>"
+```
+
 #### dpi
 ```
 curl -k https://<host>:<port>/v1/plugin/pds-data-provider-mock-fhir/Patient/38
