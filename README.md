@@ -8,10 +8,38 @@ The default port is `8080`, if you want to change the port, update in `.env` fil
 
 ### run command
 
-To start `pds-backend`
+#### unsecure mode
+##### start `pds-backend` 
 ```
-docker-compose -f docker-compose.yml -f nginx/insecure/docker-compose.yml up --build -d
+docker-compose -f docker-compose.yml -f nginx/unsecure/docker-compose.yml up --build -d
 ```
+
+#### stop `pds-backend`
+```
+docker-compose -f docker-compose.yml -f nginx/unsecure/docker-compose.yml up down -t <timeout>
+```
+
+set `<timeout>` to a longer time in case it times out before graceful shutdown
+
+#### secure mode
+##### start `pds-backend` 
+
+modify `.env`:
+
+set the `JWT_SECRET` variable to a string
+
+set `SSL_CERT_DIR` to a directory containing `cert.pem` and `key.pem`
+
+```
+docker-compose -f docker-compose.yml -f nginx/secure/docker-compose.yml up --build -d
+```
+
+#### stop `pds-backend`
+```
+docker-compose -f docker-compose.yml -f nginx/secure/docker-compose.yml up down -t <timeout>
+```
+
+
 
 ### urls for frontend
 

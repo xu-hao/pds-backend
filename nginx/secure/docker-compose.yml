@@ -3,5 +3,7 @@ services:
   pds-backend-nginx:
     build:
       context: nginx/secure
+    volumes:
+      - $SSL_CERT_DIR:/a
     ports:
       - $API_PORT:8080
