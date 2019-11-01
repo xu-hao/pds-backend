@@ -6,3 +6,5 @@ services:
       context: nginx/unsecure
     ports:
       - $API_PORT:8080
+    depends_on:
+      - pds-backend

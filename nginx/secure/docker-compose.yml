@@ -7,3 +7,5 @@ services:
       - $SSL_CERT_DIR:/a
     ports:
       - $API_PORT:8080
+    depends_on:
+      - pds-backend
