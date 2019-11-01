@@ -102,7 +102,7 @@ curl -k https://<host>:<port>/v1/plugin/<model_plugin_id>/plugin path
 ### urls for plugins
 
 ```
-curl -k "https://<host>:<port>/v1/plugin/<plugin_name>/<plugin_path>"
+curl -k "https://<host>:<port>/v1/plugin/<name>/<path>"
 ```
 
 #### dpi
