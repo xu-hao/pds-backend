@@ -3,6 +3,6 @@ services:
   pds-backend-nginx:
     container_name: pds-backend-nginx
     build:
-      context: nginx/insecure
+      context: nginx/unsecure
     ports:
       - $API_PORT:8080
