@@ -4,7 +4,7 @@
 
 ### set port
 
-The default port is `8080`, if you want to change the port, update in `.env` file `API_PORT`. We assume that we use the default port in the following.
+The default port is `8080`, if you want to change the port, update in `.env` file `API_PORT`.
 
 ### run command
 
@@ -200,16 +200,12 @@ services:
         read_only: <read only>
     depends_on:
       - <service>
-```
-
-
-
-## run
-```
-docker-compose -f docker-compose.yml up --build -V
+volumes:
+  <name>:
+    persistent: <persistent>
 ```
 
 ## test
 ```
-docker-compose -f docker-compose.yml -f test/docker-compose.yml up --build -V --exit-code-from pds-backend-test
+./test.sh
 ```
