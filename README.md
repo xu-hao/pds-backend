@@ -44,10 +44,10 @@ docker-compose -f docker-compose.yml -f nginx/secure/docker-compose.yml up down 
 ### urls for frontend
 
 #### config
-```curl -k https://<host>:<port>/v1/plugin/pds-config/config```
+```curl http://<host>:<port>/v1/plugin/pds-config/config```
 
 #### aggregator
-```curl -k https://<host>:<port>/v1/plugin/pds-aggregator/guidance?patient_id=<patient_id>&model=<model>&model_plugin_id=<model_plugin_id>&timestamp=<timestamp>```
+```curl http://<host>:<port>/v1/plugin/pds-aggregator/guidance?patient_id=<patient_id>&model=<model>&model_plugin_id=<model_plugin_id>&timestamp=<timestamp>```
 
 parameters
 
@@ -63,7 +63,7 @@ This end point will construct the following calls to the model plugin:
 
 clinical feature variables
 ```
-curl -k -X GET https://<host>:<port>/v1/plugin/<model_plugin_id>/clinical_feature_variables
+curl -X GET http://<host>:<port>/v1/plugin/<model_plugin_id>/clinical_feature_variables
 ```
 
 This expects 
@@ -78,7 +78,7 @@ This expects
 
 guidance
 ```
-curl -k -X POST https://<host>:<port>/v1/plugin/<model_plugin_id>/guidance/{model} -d '
+curl -X POST http://<host>:<port>/v1/plugin/<model_plugin_id>/guidance/{model} -d '
 [{
   "clinical_feature_variable": <clinical feature variable>,
   "title": <title>,
@@ -93,7 +93,7 @@ curl -k -X POST https://<host>:<port>/v1/plugin/<model_plugin_id>/guidance/{mode
 
 #### model
 ```
-curl -k https://<host>:<port>/v1/plugin/<model_plugin_id>/plugin path
+curl http://<host>:<port>/v1/plugin/<model_plugin_id>/plugin path
 ```
 
 
@@ -102,18 +102,18 @@ curl -k https://<host>:<port>/v1/plugin/<model_plugin_id>/plugin path
 ### urls for plugins
 
 ```
-curl -k "https://<host>:<port>/v1/plugin/<name>/<path>"
+curl "http://<host>:<port>/v1/plugin/<name>/<path>"
 ```
 
 #### dpi
 ```
-curl -k https://<host>:<port>/v1/plugin/pds-data-provider-mock-fhir/Patient/38
+curl http://<host>:<port>/v1/plugin/pds-data-provider-mock-fhir/Patient/38
 ```
 
 #### phenotype mapper
 
 ```
-curl -k "https://<host>:<port>/v1/plugin/pds-phenotype-mapping/mapping?data_provider_plugin_id=pds-data-provider-mock-fhir&timestamp=2019-10-28T00:00:00Z&patient_id=38&clinical_feature_variable=LOINC:30525-0"
+curl "http://<host>:<port>/v1/plugin/pds-phenotype-mapping/mapping?data_provider_plugin_id=pds-data-provider-mock-fhir&timestamp=2019-10-28T00:00:00Z&patient_id=38&clinical_feature_variable=LOINC:30525-0"
 ```
 
 parameters
@@ -143,12 +143,12 @@ available variables
 
 #### mpi
 ```
-curl -k "https://<host>:<port>/v1/plugin/pdsmpi-ref/plugin path"
+curl "http://<host>:<port>/v1/plugin/pdsmpi-ref/plugin path"
 ```
 
 #### profile
 ```
-curl -k "https://<host>:<port>/v1/plugin/pds-profile/profile?data_provider_plugin_id=pds-data-provider-mock-fhir&phenotype_mapping_plugin_id=pds-phenotype-mapping&model_plugin_id=pdsmpi-ref&timestamp=2019-10-28T00:00:00Z&patient_id=38"
+curl "http://<host>:<port>/v1/plugin/pds-profile/profile?data_provider_plugin_id=pds-data-provider-mock-fhir&phenotype_mapping_plugin_id=pds-phenotype-mapping&model_plugin_id=pdsmpi-ref&timestamp=2019-10-28T00:00:00Z&patient_id=38"
 ```
 
 `data_provider_plugin_id`: which data provider plugin interface to use.
@@ -163,7 +163,7 @@ curl -k "https://<host>:<port>/v1/plugin/pds-profile/profile?data_provider_plugi
 
 #### logging
 ```
-curl -k -X POST "https://<host>:<port>/v1/plugin/logging/log" -H "Content-Type: application/json" -d '{
+curl -X POST "http://<host>:<port>/v1/plugin/logging/log" -H "Content-Type: application/json" -d '{
   "event": "e",
   "timestamp": "2019-10-28T00:00:00Z",
   "source": "source",
