@@ -72,6 +72,7 @@ This expects
   "clinical_feature_variable": <clinical_feature_variable>,
   "title": <title>,
   "description": <description>,
+  "unit": <unit>, # optional
   ...
 }, ...]
 ```
@@ -90,13 +91,10 @@ curl -X POST http://<host>:<port>/v1/plugin/<model_plugin_id>/guidance/{model} -
 ```
 
 
-
 #### model
 ```
 curl http://<host>:<port>/v1/plugin/<model_plugin_id>/plugin path
 ```
-
-
 
 
 ### urls for plugins
@@ -113,7 +111,10 @@ curl http://<host>:<port>/v1/plugin/pds-data-provider-mock-fhir/Patient/38
 #### phenotype mapper
 
 ```
-curl "http://<host>:<port>/v1/plugin/pds-phenotype-mapping/mapping?data_provider_plugin_id=pds-data-provider-mock-fhir&timestamp=2019-10-28T00:00:00Z&patient_id=38&clinical_feature_variable=LOINC:30525-0"
+curl "https//<host>:<port>/v1/plugin/pds-phenotype-mapping/mapping?data_provider_plugin_id=pds-data-provider-mock-fhir&timestamp=2019-10-28T00:00:00Z&patient_id=38" -d '[{
+  "clinical_feature_variable": <clinical_feature_variable>,
+  "unit": <unit> # optional
+}, ...]
 ```
 
 parameters
@@ -140,6 +141,8 @@ available variables
     LOINC:29463-7: weight
     LOINC:39156-5: bmi
 ```
+
+`unit`: unit
 
 #### mpi
 ```
