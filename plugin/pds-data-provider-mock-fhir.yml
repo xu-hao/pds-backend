@@ -1,8 +1,8 @@
 services:
-  pdsdpi-mock-fhir:
-    image: zooh/pds-mock-fhir:0.1.0
+  pds-data-provider-mock-fhir:
+    image: zooh/pds-data-provider-mock-fhir:0.1.0
     environment:
-      MONGO_HOST: pdsdpi-mock-fhir-mongodb
+      MONGO_HOST: pds-data-provider-mock-fhir-mongodb
       MONGO_PORT: 27017
       MONGO_DATABASE: dpicache
       MONGO_NON_ROOT_USERNAME: pds
@@ -11,9 +11,9 @@ services:
       CACHE_TTL: 3600
     port: 8080
     depends_on:
-      - pdsdpi-mock-fhir-mongodb
-  pdsdpi-mock-fhir-mongodb:
-    image: zooh/pds-mock-fhir-mongodb:0.1.0
+      - pds-data-provider-mock-fhir-mongodb
+  pds-data-provider-mock-fhir-mongodb:
+    image: zooh/tx-persistence:0.1.0
     environment:
       MONGO_INITDB_ROOT_USERNAME: a
       MONGO_INITDB_ROOT_PASSWORD: a
