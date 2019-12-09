@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/RENCI/pds-backend.svg?token=hSyYs1SXtzNJJDmjUzHi&branch=master)](https://travis-ci.com/RENCI/pds-backend)
+
 # pds-backend
 
 ## how to deploy
