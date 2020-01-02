@@ -7,14 +7,14 @@ import pymongo
 import docker
 from multiprocessing import Process
 import shutil
-from txrouter import plugin, plugin_config
+from tx.router import plugin, plugin_config
 from contextlib import contextmanager
 import tempfile
 from bson.objectid import ObjectId
 import api
 import yaml
 from debug.utils import bag_equal, bag_contains
-from txrouter.plugin_config import to_docker_compose
+from tx.router.plugin_config import to_docker_compose
 from api.jwt import generate_token
 
 CLIENT_DELAY = 1

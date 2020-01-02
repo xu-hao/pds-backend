@@ -1,6 +1,6 @@
 import requests
-from txrouter import plugin_config, plugin
-from txrouter.logging import l
+from tx.router import plugin_config, plugin
+from tx.router.logging import l
 import logging
 import connexion
 import sys

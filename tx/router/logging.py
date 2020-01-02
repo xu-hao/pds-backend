@@ -2,8 +2,8 @@ import syslog
 import time
 import logging
 import requests
-from txrouter.utils import tstostr
-from txrouter import plugin_config
+from tx.dateutils.utils import tstostr
+from tx.router import plugin_config
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)

@@ -19,7 +19,8 @@ RUN pip3 install --no-cache-dir \
   python-jose[cryptography]
 
 COPY api /usr/src/app/api
-COPY txrouter /usr/src/app/txrouter
+COPY tx /usr/src/app/tx
+COPY tx-utils/src /usr/src/app
 COPY sc.py /usr/src/app/sc.py
 
 EXPOSE 8080
