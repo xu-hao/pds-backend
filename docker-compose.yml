@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   mongodb:
-    container_name: txrouter-mongodb
+    container_name: ${TXROUTER_MONGO_CONTAINER}
     image: txscience/tx-persistence:0.1.0
     restart: always
 #    volumes:
@@ -30,7 +30,7 @@ services:
       INIT_PLUGIN_PATH: /plugin
       JWT_SECRET: $JWT_SECRET
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DOCKER_SOCK}:/var/run/docker.sock
       - $INIT_PLUGIN_PATH:/plugin
     depends_on:
       - mongodb
