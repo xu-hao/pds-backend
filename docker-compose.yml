@@ -3,7 +3,7 @@ version: '3.4'
 services:
   mongodb:
     container_name: txrouter-mongodb
-    image: txscience/tx-persistence:latest
+    image: txscience/tx-persistence:0.1.0
     restart: always
 #    volumes:
 #      - $MONGODB_DATA_DIR:/data/db

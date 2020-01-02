@@ -7,7 +7,7 @@ services:
     build:
       context: .
       dockerfile: test/Dockerfile
-    image: tx-router-test:latest
+    image: tx-router-test:0.2.0
     command: ["-s", "-v", "-x"] # , "-k", "test_create_volume"]
     environment:
       COMPOSE_PROJECT_NAME: $COMPOSE_PROJECT_NAME
@@ -30,7 +30,7 @@ services:
     build:
       context: test/flask-echo-server
       dockerfile: Dockerfile
-    image: tx-router-test-flask-echo-server:latest
+    image: tx-router-test-flask-echo-server:0.2.0
     environment:
       HOST: 0.0.0.0
       PORT: 80

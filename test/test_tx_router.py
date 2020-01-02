@@ -84,7 +84,7 @@ def pc2(temp_dir_name):
 
 
 echo_pc = {
-    "image": "tx-router-test-flask-echo-server:latest",
+    "image": "tx-router-test-flask-echo-server:0.2.0",
     "environment": {},
     "name": "echo",
     "port": 80,
@@ -96,7 +96,7 @@ echo_pc = {
 }
 
 echo_pc2 = {
-    "image": "tx-router-test-flask-echo-server:latest",
+    "image": "tx-router-test-flask-echo-server:0.2.0",
     "name": "echo2",
     "port": 80,
     "environment": {
@@ -109,7 +109,7 @@ echo_pc2 = {
 
 echo_pcs_dep = [
     {
-        "image": "tx-router-test-flask-echo-server:latest",
+        "image": "tx-router-test-flask-echo-server:0.2.0",
         "environment": {},
         "name": "echo",
         "port": 80,
@@ -118,7 +118,7 @@ echo_pcs_dep = [
             "PORT": "80"
         }
     }, {
-        "image": "tx-router-test-flask-echo-server:latest",
+        "image": "tx-router-test-flask-echo-server:0.2.0",
         "name": "echo2",
         "port": 80,
         "environment": {
@@ -133,13 +133,13 @@ echo_pcs_dep = [
 
 echo_pcs_dep2 = [
     {
-        "image": "tx-router-test-flask-echo-server:latest",
+        "image": "tx-router-test-flask-echo-server:0.2.0",
         "environment": {},
         "name": "echo",
         "port": 80,
         "depends_on": ["echo2"]
     }, {
-        "image": "tx-router-test-flask-echo-server:latest",
+        "image": "tx-router-test-flask-echo-server:0.2.0",
         "name": "echo2",
         "port": 80,
         "depends_on": ["echo"]
@@ -149,18 +149,18 @@ echo_pcs_dep2 = [
 
 echo_pcs_dep3 = [
     {
-        "image": "tx-router-test-flask-echo-server:latest",
+        "image": "tx-router-test-flask-echo-server:0.2.0",
         "environment": {},
         "name": "echo",
         "port": 80
     }, {
-        "image": "tx-router-test-flask-echo-server:latest",
+        "image": "tx-router-test-flask-echo-server:0.2.0",
         "environment": {},
         "name": "echo2",
         "port": 80,
         "depends_on": ["echo0"]
     }, {
-        "image": "tx-router-test-flask-echo-server:latest",
+        "image": "tx-router-test-flask-echo-server:0.2.0",
         "name": "echo3",
         "port": 80,
         "depends_on": ["echo0"]
