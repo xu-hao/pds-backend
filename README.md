@@ -1,6 +1,6 @@
-[![Build Status](https://travis-ci.com/RENCI/pds-backend.svg?token=hSyYs1SXtzNJJDmjUzHi&branch=master)](https://travis-ci.com/RENCI/pds-backend)
+[![Build Status](https://travis-ci.com/RENCI/tx-router.svg?branch=master)](https://travis-ci.com/RENCI/tx-router)
 
-# pds-backend
+# tx-router
 
 ## how to deploy
 
