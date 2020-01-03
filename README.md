@@ -55,7 +55,7 @@ If a logging plugin is not defined, messages will:
 
 ### plugin configuration format for INIT_PLUGIN_PATH
 
-__For this release, all plugins must be a deployable docker container that also implements an OpenAPI__
+__For this release, all plugins must be a deployable docker container__
 
 ## plugin configuration format for ${INIT_PLUGIN_PATH}
 
