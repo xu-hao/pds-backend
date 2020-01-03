@@ -57,7 +57,7 @@ If a logging plugin is not defined, messages will:
 
 __For this release, all plugins must be a deployable docker container that also implements an OpenAPI__
 
-## plugin configuration format for ${TXROUTER_INIT_PLUGIN_PATH}
+## plugin configuration format for ${INIT_PLUGIN_PATH}
 
 See test/env.src for example path value
 
@@ -121,8 +121,8 @@ The following can be set directly in the docker-compose.yml file or use the envi
  - MONGO_HOST
  - MONGO_PORT
  - MONGO_DATABASE
- - MONGO_USERNAME
- - MONGO_PASSWORD
+ - MONGO_NON_ROOT_USERNAME
+ - MONGO_NON_ROOT_PASSWORD
 
 ## test
 ```
