@@ -6,7 +6,7 @@
 
 ### set port
 
-The default port is `8080`, if you want to change the port, set it with environmental variable `TXROUTER_API_PORT`.
+The default port is `8080`, if you want to change the port, set it with environmental variable `API_PORT`.
 
 ### run command
 
