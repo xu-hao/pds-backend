@@ -6,6 +6,7 @@ WORKDIR test
 RUN pip3 install \
   connexion \
   docker \
+  get_docker_secret==1.0.1 \
   pymongo \
   pytest \
   python-dateutil \

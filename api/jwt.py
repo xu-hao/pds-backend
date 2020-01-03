@@ -1,4 +1,5 @@
 from werkzeug.exceptions import Unauthorized
+from get_docker_secret import get_docker_secret
 
 from jose import JWTError, jwt
 import sys
@@ -6,7 +7,7 @@ import os
 import time
 
 JWT_ISSUER = 'pdsbackend'
-JWT_SECRET = os.environ["JWT_SECRET"]
+JWT_SECRET = get_docker_secret("JWT_SECRET")
 JWT_LIFETIME_SECONDS = 600
 JWT_ALGORITHM = 'HS256'
 

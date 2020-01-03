@@ -3,15 +3,15 @@ import logging
 from pymongo import MongoClient
 from contextlib import contextmanager
 from bson.objectid import ObjectId
+from get_docker_secret import get_docker_secret
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-
 @contextmanager
 def plugin_db():
     mongo_database = os.environ["MONGO_DATABASE"]
-    c = MongoClient(os.environ["MONGO_HOST"], int(os.environ["MONGO_PORT"]), username=os.environ["MONGO_USERNAME"], password=os.environ["MONGO_PASSWORD"], authSource=mongo_database)
+    c = MongoClient(os.environ["MONGO_HOST"], int(os.environ["MONGO_PORT"]), username=os.environ["MONGO_NON_ROOT_USERNAME"], password=get_docker_secret("MONGO_NON_ROOT_PASSWORD"), authSource=mongo_database)
     try:
         db = c[mongo_database]
         collection = db[os.environ["MONGO_COLLECTION"]]
