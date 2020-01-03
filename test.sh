@@ -1,2 +1,2 @@
 #!/bin/bash
-docker-compose -f docker-compose.yml -f test/docker-compose.yml up --build -V --exit-code-from txrouter-test
+docker-compose --env-file test/env -f docker-compose.yml -f test/docker-compose.yml up --build -V --exit-code-from txrouter-test
