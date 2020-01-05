@@ -128,3 +128,5 @@ The following can be set directly in the docker-compose.yml file or use the envi
 ```
 ./test.sh
 ```
+## auto-build
+Every commit to a tag (e.g., 'v.0.2.0') or master triggers an autobuild and autotest of the container on dockerhub (e.g., tx-router:latest for master, tx-router:v0.2.0 for a tag named v0.2.0)
