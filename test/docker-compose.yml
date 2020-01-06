@@ -20,6 +20,8 @@ services:
       JWT_SECRET: $JWT_SECRET
       TXROUTER_TEST_PLUGIN_PORT: ${TXROUTER_TEST_PLUGIN_PORT}
       TXROUTER_TAG: ${TXROUTER_TAG}
+      TXROUTER_PORT: ${TXROUTER_PORT}
+      FRAMEWORK_VERSION: ${FRAMEWORK_VERSION}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp:/tmp
