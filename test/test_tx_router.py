@@ -18,6 +18,8 @@ from tx.router.plugin_config import to_docker_compose
 from api.jwt import generate_token
 
 tag=os.environ['TXROUTER_TAG']
+port=os.environ['TXROUTER_PORT']
+version=os.environ['FRAMEWORK_VERSION']
 test_port=os.environ['TXROUTER_TEST_PLUGIN_PORT']
 
 CLIENT_DELAY = 1
@@ -30,7 +32,7 @@ headers = {"Authorization": f"Bearer {auth_token}"}
 
 headers2 = {"Authorization": f"Bearer {auth_token2}"}
 
-base_url = "http://txrouter:8080/v1"
+base_url = "http://txrouter:" + port + "/" + version
 
 @pytest.fixture(scope="session", autouse=True)
 def pause():
