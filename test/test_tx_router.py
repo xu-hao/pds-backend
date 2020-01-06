@@ -336,7 +336,7 @@ def test_run_container_from_init_dep():
         for apc in apcs:
             container_name = apc["name"]
 
-            resp = requests.get("http://{host}/".format(host=container_name))
+            resp = requests.get(f"http://{container_name}/")
 
         assert resp.status_code == 200
         assert resp.json()["method"] == "GET"
@@ -366,7 +366,7 @@ def test_delete_container_from_init_dep():
         container_name = apc["name"]
 
         with pytest.raises(Exception):
-            resp = requests.get("http://{host}/".format(host=container_name))
+            resp = requests.get(f"http://{container_name}/")
 
     assert bag_equal(plugin_config.get_plugin_configs({}), [])
     shutil.rmtree(init_plugin_path)
@@ -388,7 +388,7 @@ def test_run_container_from_init_deps2():
         container_name = apc["name"]
 
         with pytest.raises(Exception):
-            resp = requests.get("http://{host}/".format(host=container_name))
+            resp = requests.get(f"http://{container_name}/")
 
     shutil.rmtree(init_plugin_path)
 
@@ -408,7 +408,7 @@ def test_run_container_from_init_deps3():
         container_name = apc["name"]
 
         with pytest.raises(Exception):
-            resp = requests.get("http://{host}/".format(host=container_name))
+            resp = requests.get(f"http://{container_name}/")
 
     shutil.rmtree(init_plugin_path)
 
@@ -422,7 +422,7 @@ def test_run_container_get_echo():
         container_name = apc["name"]
 
         time.sleep(CLIENT_DELAY)
-        resp = requests.get("http://{host}/".format(host=container_name))
+        resp = requests.get(f"http://{container_name}/")
 
         assert resp.status_code == 200
         assert resp.json()["method"] == "GET"
@@ -442,7 +442,7 @@ def test_run_container_post_echo():
         container_name = apc["name"]
 
         time.sleep(CLIENT_DELAY)
-        resp = requests.post("http://{host}/".format(host=container_name), headers={"Content-Type": "application/json"}, json=s)
+        resp = requests.post(f"http://{container_name}", headers={"Content-Type": "application/json"}, json=s)
 
         assert resp.status_code == 200
         assert resp.json()["data"] == json.dumps(s)
@@ -451,6 +451,106 @@ def test_run_container_post_echo():
     finally:
         plugin.stop_container(apc)
         plugin.remove_container(apc)
+
+
+def test_run_plugin_get_echo_x_forwarded_path():
+    try:
+        apc = echo_pc
+        
+        plugin_config.add_plugin_configs([apc])
+        plugin.run_container(apc)
+        
+        container_name = apc["name"]
+
+        time.sleep(CLIENT_DELAY)
+        resp = requests.get(f"{base_url}/plugin/{container_name}/index.json")
+
+        assert resp.status_code == 200
+        assert resp.json()["method"] == "GET"
+        assert "X-Forwarded-Path" in resp.json()["headers"]
+        assert resp.json()["headers"]["X-Forwarded-Path"] == f"/v1/plugin/{container_name}"
+
+    finally:
+        plugin.stop_container(apc)
+        plugin.remove_container(apc)
+        plugin_config.delete_plugin_configs({})
+
+
+def test_run_plugin_post_echo_x_forwarded_path():
+    s = "pds"
+    try:
+        apc = echo_pc
+
+        plugin_config.add_plugin_configs([apc])
+        plugin.run_container(apc)
+
+        container_name = apc["name"]
+
+        time.sleep(CLIENT_DELAY)
+        resp = requests.post(f"{base_url}/plugin/{container_name}/index.json", headers={"Content-Type": "application/json"}, json=s)
+
+        assert resp.status_code == 200
+        assert resp.json()["data"] == json.dumps(s)
+        assert resp.json()["method"] == "POST"
+        assert "X-Forwarded-Path" in resp.json()["headers"]
+        assert resp.json()["headers"]["X-Forwarded-Path"] == f"/v1/plugin/{container_name}"
+
+    finally:
+        plugin.stop_container(apc)
+        plugin.remove_container(apc)
+        plugin_config.delete_plugin_configs({})
+
+
+def test_run_plugin_get_echo_x_forwarded_path_reverse_proxy_rewrite():
+    try:
+        apc = echo_pc
+
+        plugin_config.add_plugin_configs([apc])
+        plugin.run_container(apc)
+
+        container_name = apc["name"]
+
+        time.sleep(CLIENT_DELAY)
+
+        reverse_proxy_rewrite = "reverse_proxy_path"
+        resp = requests.get(f"{base_url}/plugin/{container_name}/index.json", headers={"X-Forwarded-Path": reverse_proxy_rewrite})
+
+        assert resp.status_code == 200
+        assert resp.json()["method"] == "GET"
+        assert "X-Forwarded-Path" in resp.json()["headers"]
+        assert resp.json()["headers"]["X-Forwarded-Path"] == f"{reverse_proxy_rewrite}/v1/plugin/{container_name}"
+
+    finally:
+        plugin.stop_container(apc)
+        plugin.remove_container(apc)
+        plugin_config.delete_plugin_configs({})
+
+
+def test_run_plugin_post_echo_x_forwarded_path_reverse_proxy_rewrite():
+    s = "pds"
+    try:
+        apc = echo_pc
+
+        plugin_config.add_plugin_configs([apc])
+        plugin.run_container(apc)
+
+        container_name = apc["name"]
+
+        time.sleep(CLIENT_DELAY)
+
+        reverse_proxy_rewrite = "reverse_proxy_path"
+        resp = requests.post(f"{base_url}/plugin/{container_name}/index.json", headers={"Content-Type": "application/json", "X-Forwarded-Path": reverse_proxy_rewrite}, json=s)
+
+        assert resp.status_code == 200
+        assert resp.json()["data"] == json.dumps(s)
+        assert resp.json()["method"] == "POST"
+        assert "X-Forwarded-Path" in resp.json()["headers"]
+        assert resp.json()["headers"]["X-Forwarded-Path"] == f"{reverse_proxy_rewrite}/v1/plugin/{container_name}"
+
+    finally:
+        plugin.stop_container(apc)
+        plugin.remove_container(apc)
+        plugin_config.delete_plugin_configs({})
 
 
 def test_run_container_get_echo_404():
