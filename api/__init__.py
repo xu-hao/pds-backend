@@ -8,6 +8,12 @@ import sys
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+def set_forwarded_path_header(headers):
+    forwarded_path0 = connexion.request.headers.get("X-Forwarded-Path", "")
+    forwarded_path = f"{forwarded_path0}/v1/plugin/{name}"
+
+    return {**headers, "X-Forwarded-Path": forwarded_path}
+
 
 @l("get", "backend")
 def get_plugin(name, path, headers, kwargs={}):
@@ -18,6 +24,8 @@ def get_plugin(name, path, headers, kwargs={}):
     port = pc.get("port", None)
     if port is None:
         raise RuntimeError("plugin doesn't have port")
+
+    headers = set_forwarded_path_header(headers)
 
     resp = requests.get("http://{host}:{port}/{path}".format(host=pc["name"], port=port, path=path), headers=headers, params=kwargs, stream=True)
     return resp.raw.read(), resp.status_code, resp.headers.items()
@@ -32,6 +40,8 @@ def post_plugin(name, path, headers, body, kwargs={}):
     port = pc.get("port", None)
     if port is None:
         raise RuntimeError("plugin doesn't have port")
+
+    headers = set_forwarded_path_header(headers)
 
     resp = requests.post("http://{host}:{port}/{path}".format(host=pc["name"], port=port, path=path), headers=headers, params=kwargs, json=body, stream=True)
     return resp.raw.read(), resp.status_code, resp.headers.items()
