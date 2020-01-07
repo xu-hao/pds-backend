@@ -17,10 +17,8 @@ from debug.utils import bag_equal, bag_contains
 from tx.router.plugin_config import to_docker_compose
 from api.jwt import generate_token
 
+import os
 tag=os.environ['TXROUTER_TAG']
-port=os.environ['TXROUTER_PORT']
-version=os.environ['FRAMEWORK_VERSION']
-test_port=os.environ['TXROUTER_TEST_PLUGIN_PORT']
 
 CLIENT_DELAY = 1
 
@@ -32,7 +30,7 @@ headers = {"Authorization": f"Bearer {auth_token}"}
 
 headers2 = {"Authorization": f"Bearer {auth_token2}"}
 
-base_url = "http://txrouter:" + port + "/" + version
+base_url = "http://txrouter:8080/v1"
 
 @pytest.fixture(scope="session", autouse=True)
 def pause():
@@ -54,10 +52,10 @@ name2 = "nginx20"
 
 def pc(temp_dir_name):
     return {
-        "image": "nginx:"+nginx_version,
+        "image": "nginx:1.17.4",
         "environment": {},
         "name": name,
-        "port": test_port,
+        "port": 80,
         "volumes": [
             {
                 "target": "/usr/share/nginx/html",
@@ -72,10 +70,10 @@ def pc(temp_dir_name):
 
 def pc2(temp_dir_name):
     return {
-        "image": "nginx:"+nginx_version,
+        "image": "nginx:1.17.4",
         "environment": {},
         "name": name2,
-        "port": test_port,
+        "port": 80,
         "volumes": [
             {
                 "target": "/usr/share/nginx/html",
@@ -92,10 +90,10 @@ echo_pc = {
     "image": "tx-router-test-flask-echo-server:" + tag,
     "environment": {},
     "name": "echo",
-    "port": test_port,
+    "port": 80,
     "environment": {
         "HOST": "0.0.0.0",
-        "PORT": test_port
+        "PORT": "80"
     },
     "volumes": []
 }
@@ -103,10 +101,10 @@ echo_pc = {
 echo_pc2 = {
     "image": "tx-router-test-flask-echo-server:" + tag,
     "name": "echo2",
-    "port": test_port,
+    "port": 80,
     "environment": {
         "HOST": "0.0.0.0",
-        "PORT": test_port,
+        "PORT": "80",
         "VAR": "data"
     },
     "volumes": []
@@ -117,18 +115,18 @@ echo_pcs_dep = [
         "image": "tx-router-test-flask-echo-server:" + tag,
         "environment": {},
         "name": "echo",
-        "port": test_port,
+        "port": 80,
         "environment": {
             "HOST": "0.0.0.0",
-            "PORT": test_port
+            "PORT": "80"
         }
     }, {
         "image": "tx-router-test-flask-echo-server:" + tag,
         "name": "echo2",
-        "port": test_port,
+        "port": 80,
         "environment": {
             "HOST": "0.0.0.0",
-            "PORT": test_port,
+            "PORT": "80",
             "VAR": "data"
         },
         "depends_on": ["echo"]
@@ -141,12 +139,12 @@ echo_pcs_dep2 = [
         "image": "tx-router-test-flask-echo-server:" + tag,
         "environment": {},
         "name": "echo",
-        "port": test_port,
+        "port": 80,
         "depends_on": ["echo2"]
     }, {
         "image": "tx-router-test-flask-echo-server:" + tag,
         "name": "echo2",
-        "port": test_port,
+        "port": 80,
         "depends_on": ["echo"]
     }
 ]
@@ -157,17 +155,17 @@ echo_pcs_dep3 = [
         "image": "tx-router-test-flask-echo-server:" + tag,
         "environment": {},
         "name": "echo",
-        "port": test_port
+        "port": 80
     }, {
         "image": "tx-router-test-flask-echo-server:" + tag,
         "environment": {},
         "name": "echo2",
-        "port": test_port
+        "port": 80,
         "depends_on": ["echo0"]
     }, {
         "image": "tx-router-test-flask-echo-server:" + tag,
         "name": "echo3",
-        "port": test_port,
+        "port": 80,
         "depends_on": ["echo0"]
     }
 ]
@@ -211,7 +209,7 @@ def test_run_container_from_init():
         os.mkdir(init_plugin_path)
         with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
             write_config(apcs, f)
-        os.environ["TXROUTER_INIT_PLUGIN_PATH"] = init_plugin_path
+        os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
 
         plugin.init_plugin()
         assert bag_contains(plugin_config.get_plugin_configs({}), apcs)
@@ -238,7 +236,7 @@ def test_delete_container_from_init():
     with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
         write_config(apcs, f)
         
-    os.environ["TXROUTER_INIT_PLUGIN_PATH"] = init_plugin_path
+    os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
         
     plugin.init_plugin()
         
@@ -265,7 +263,7 @@ def test_run_container_from_init2():
         with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
             write_config(apcs, f)
             
-        os.environ["TXROUTER_INIT_PLUGIN_PATH"] = init_plugin_path
+        os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
 
         plugin.init_plugin()
         assert bag_contains(plugin_config.get_plugin_configs({}), apcs)
@@ -301,7 +299,7 @@ def test_delete_container_from_init2():
     with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
         write_config(apcs, f)
             
-    os.environ["TXROUTER_INIT_PLUGIN_PATH"] = init_plugin_path
+    os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
         
     plugin.init_plugin()
         
@@ -329,7 +327,7 @@ def test_run_container_from_init_dep():
         os.mkdir(init_plugin_path)
         with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
             write_config(apcs, f)
-        os.environ["TXROUTER_INIT_PLUGIN_PATH"] = init_plugin_path
+        os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
 
         plugin.init_plugin()
         assert bag_contains(plugin_config.get_plugin_configs({}), apcs)
@@ -357,7 +355,7 @@ def test_delete_container_from_init_dep():
     with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
         write_config(apcs, f)
         
-    os.environ["TXROUTER_INIT_PLUGIN_PATH"] = init_plugin_path
+    os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
         
     plugin.init_plugin()
         
@@ -381,7 +379,7 @@ def test_run_container_from_init_deps2():
     os.mkdir(init_plugin_path)
     with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
         write_config(apcs, f)
-    os.environ["TXROUTER_INIT_PLUGIN_PATH"] = init_plugin_path
+    os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
         
     with pytest.raises(Exception):
         plugin.init_plugin()
@@ -401,7 +399,7 @@ def test_run_container_from_init_deps3():
     os.mkdir(init_plugin_path)
     with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
         write_config(apcs, f)
-    os.environ["TXROUTER_INIT_PLUGIN_PATH"] = init_plugin_path
+    os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
         
     with pytest.raises(Exception):
         plugin.init_plugin()
