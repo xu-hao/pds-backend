@@ -10,8 +10,10 @@ logger.setLevel(logging.INFO)
 
 def set_forwarded_path_header(f):
     def func(name, path, headers, *args, **kwargs):
-        forwarded_path0 = connexion.request.headers.get("X-Forwarded-Path", "")
-        headers0 = {**headers, "X-Forwarded-Path": f"{forwarded_path0}/v1/plugin/{name}"}
+        forwarded_path0_slash = connexion.request.headers.get("X-Forwarded-Path", "")
+        forwarded_path0 = forwarded_path0_slash.rstrip("/")
+        forwarded_path = f"{forwarded_path0}/v1/plugin/{name}"
+        headers0 = {**headers, "X-Forwarded-Path": forwarded_path}
         print("headers0 = " + str(headers0))
         sys.stdout.flush()
         return f(name, path, headers0, *args, **kwargs)
