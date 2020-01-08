@@ -3,7 +3,7 @@ version: '3.4'
 services:
   mongodb:
     container_name: ${TXROUTER_MONGO_CONTAINER}
-    image: txscience/tx-persistence:latest
+    image: txscience/tx-persistence:${TX_TAG}
     restart: always
 #    volumes:
 #      - $MONGODB_DATA_DIR:/data/db
