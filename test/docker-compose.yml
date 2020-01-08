@@ -7,7 +7,7 @@ services:
     build:
       context: .
       dockerfile: test/Dockerfile
-    image: tx-router-test:${TXROUTER_TAG}
+    image: tx-router-test:${TX_TAG}
     command: ["-s", "-v", "-x"] # , "-k", "test_create_volume"]
     environment:
       COMPOSE_PROJECT_NAME: $COMPOSE_PROJECT_NAME
@@ -18,7 +18,7 @@ services:
       MONGO_NON_ROOT_USERNAME: $MONGO_NON_ROOT_USERNAME
       MONGO_NON_ROOT_PASSWORD: $MONGO_NON_ROOT_PASSWORD
       JWT_SECRET: $JWT_SECRET
-      TXROUTER_TAG: ${TXROUTER_TAG}
+      TX_TAG: ${TX_TAG}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp:/tmp
@@ -31,7 +31,7 @@ services:
     build:
       context: test/flask-echo-server
       dockerfile: Dockerfile
-    image: tx-router-test-flask-echo-server:${TXROUTER_TAG}
+    image: tx-router-test-flask-echo-server:${TX_TAG}
     environment:
       HOST: 0.0.0.0
       PORT: 80

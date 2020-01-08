@@ -18,7 +18,7 @@ from tx.router.plugin_config import to_docker_compose
 from api.jwt import generate_token
 
 import os
-tag=os.environ['TXROUTER_TAG']
+tag=os.environ['TX_TAG']
 
 CLIENT_DELAY = 1
 
