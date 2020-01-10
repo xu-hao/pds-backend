@@ -2,13 +2,28 @@
 
 # tx-router
 
-## how to deploy
+## how to deploy for development
 
-### set port
+The following deployment is for a unix-based system, tested on Centos7
 
-The default port is `8080`, if you want to change the port, set it with environmental variable `API_PORT`.
+*### set port
+
+The default port is `8080`, if you want to change the port, set it with environmental variable `TXROUTER_API_PORT`.
+
+### configure environmental variables
+
+Set the release tag so that the correct containers are built to the correct release cycle
+
+` export TX_TAG=`cat tx-router/env.TAG` `
+
+Copy tx-router/test/env.docker to my-env.docker and customize for your own choices, then set the variabls:
+
+export $(sed -e 's/=\(.*\)/="\1/g' -e 's/$/"/g' my-env.docker |grep -v "^#"| xargs)
+
 
 ### run command
+
+From under the tx-router directory:
 
 #### unsecure mode
 ##### start `tx-router` 
@@ -25,8 +40,6 @@ set `<timeout>` to a longer time to prevent time out before graceful shutdown
 
 #### secure mode
 ##### start `tx-router` 
-
-set environmental variables, see test/env.src for examples.
 
 ```
 docker-compose -f docker-compose.yml -f nginx/secure/docker-compose.yml up --build -d -V
@@ -59,7 +72,7 @@ __For this release, all plugins must be a deployable docker container__
 
 ## plugin configuration format for ${INIT_PLUGIN_PATH}
 
-See test/env.src for example path value
+See test/env.docker for example path value
 
 `.yaml` or `.yml`:
 
@@ -126,7 +139,8 @@ The following can be set directly in the docker-compose.yml file or use the envi
 
 ## test
 ```
+cd tx-router
 ./test.sh
 ```
 ## auto-build
-Every commit to a tag (e.g., 'v.0.2.0') or master triggers an autobuild and autotest of the container on dockerhub (e.g., tx-router:latest for master, tx-router:v0.2.0 for a tag named v0.2.0)
+Every commit to a tag (e.g., 'v.0.2.0') or master triggers an autobuild and autotest of the container on dockerhub (e.g., tx-router:unstable for master, tx-router:v0.2.0 for a tag named v0.2.0)
