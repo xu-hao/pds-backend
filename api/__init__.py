@@ -8,8 +8,20 @@ import sys
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+def set_forwarded_path_header(f):
+    def func(name, path, headers, *args, **kwargs):
+        forwarded_path0_slash = connexion.request.headers.get("X-Forwarded-Path", "")
+        forwarded_path0 = forwarded_path0_slash.rstrip("/")
+        forwarded_path = f"{forwarded_path0}/v1/plugin/{name}"
+        headers0 = {**headers, "X-Forwarded-Path": forwarded_path}
+        print("headers0 = " + str(headers0))
+        sys.stdout.flush()
+        return f(name, path, headers0, *args, **kwargs)
+    return func
+
 
 @l("get", "backend")
+@set_forwarded_path_header
 def get_plugin(name, path, headers, kwargs={}):
     pc = plugin_config.get_plugin_config(name)
     if pc is None:
@@ -24,6 +36,7 @@ def get_plugin(name, path, headers, kwargs={}):
 
 
 @l("post", "backend")
+@set_forwarded_path_header
 def post_plugin(name, path, headers, body, kwargs={}):
     pc = plugin_config.get_plugin_config(name)
     if pc is None:
