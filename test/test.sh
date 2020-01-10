@@ -17,8 +17,11 @@ export TX_TAG
 # will override any .env variables
 # setting them explicitly here avoids any ambiguity
 
+# add other MONGO creds here?
 MONGO_INITDB_ROOT_PASSWORD=example MONGO_NON_ROOT_PASSWORD=collection JWT_SECRET=secret docker-compose -f docker-compose.yml -f test/docker-compose.yml up --build -V --exit-code-from txrouter-test
 
-# save info on how docker containers were configured
+### save info on how docker containers were configured
 MONGO_INITDB_ROOT_PASSWORD=example MONGO_NON_ROOT_PASSWORD=collection JWT_SECRET=secret docker-compose -f docker-compose.yml -f test/docker-compose.yml config > test/config.out
 
+
+env > test/env.out
