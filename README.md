@@ -2,11 +2,11 @@
 
 # tx-router
 
-## how to deploy for development
+## Development deployment
 
 The following deployment is for a unix-based system, tested on Centos7
 
-*### set port
+### set port
 
 The default port is `8080`, if you want to change the port, set it with environmental variable `TXROUTER_API_PORT`.
 
@@ -14,12 +14,15 @@ The default port is `8080`, if you want to change the port, set it with environm
 
 Set the release tag so that the correct containers are built to the correct release cycle
 
-` export TX_TAG=`cat tx-router/env.TAG` `
+``` 
+export TX_TAG=`cat tx-router/env.TAG` 
+```
 
 Copy tx-router/test/env.docker to my-env.docker and customize for your own choices, then set the variabls:
 
-export $(sed -e 's/=\(.*\)/="\1/g' -e 's/$/"/g' my-env.docker |grep -v "^#"| xargs)
-
+``` 
+export $(sed -e 's/=\(.*\)/="\1/g' -e 's/$/"/g' my-env.docker |grep -v "^#"| xargs) 
+```
 
 ### run command
 
