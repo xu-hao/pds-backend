@@ -15,7 +15,7 @@ The default port is `8080`, if you want to change the port, set it with environm
 Set the release tag so that the correct containers are built to the correct release cycle
 
 ``` 
-export TX_TAG=`cat tx-router/env.TAG` 
+export `cat tx-router/env.TAG` 
 ```
 
 Copy tx-router/test/env.docker to my-env.docker and customize for your own choices, then set the variabls:
