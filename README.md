@@ -31,9 +31,10 @@ From under the tx-router directory:
 #### unsecure mode
 ##### start `tx-router` 
 ```
-docker-compose -f docker-compose.yml -f nginx/unsecure/docker-compose.yml up --build -d -V
+MONGO_INITDB_ROOT_PASSWORD=<example> MONGO_NON_ROOT_PASSWORD=<collection> JWT_SECRET=<secret> docker-compose -f docker-compose.yml -f nginx/unsecure/docker-compose.yml up --build -d -V
 ```
-
+where <example>, <collection> and <secret> are secure phrases of your choosing.
+  
 ##### stop `tx-router`
 ```
 docker-compose -f docker-compose.yml -f nginx/unsecure/docker-compose.yml down -t <timeout>
@@ -45,8 +46,9 @@ set `<timeout>` to a longer time to prevent time out before graceful shutdown
 ##### start `tx-router` 
 
 ```
-docker-compose -f docker-compose.yml -f nginx/secure/docker-compose.yml up --build -d -V
+MONGO_INITDB_ROOT_PASSWORD=<example> MONGO_NON_ROOT_PASSWORD=<collection> JWT_SECRET=<secret> docker-compose -f docker-compose.yml -f nginx/secure/docker-compose.yml up --build -d -V
 ```
+where <example>, <collection> and <secret> are secure phrases of your choosing.
 
 ##### stop `tx-router`
 ```
