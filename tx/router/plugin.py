@@ -6,12 +6,38 @@ import os
 import yaml
 import sys
 import time
+import re
 from .plugin_config import add_plugin_configs, delete_plugin_configs, from_docker_compose, sort_plugin_configs
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
-    
+
+# from https://stackoverflow.com/questions/52412297/how-to-replace-environment-variable-value-in-yaml-file-to-be-parsed-using-python
+path_matcher2 = re.compile(r'.*\$\{([^}]+)\}.*')
+path_matcher = re.compile(r'\$\{([^}]+)\}')
+def path_constructor(loader, node):
+  ''' Extract the matched value, expand env variable, and replace the match '''
+  value = node.value
+  i = 0
+  value2 = ""
+  while True:
+      match = path_matcher.search(value, i)
+      if not match:
+          return value2 + value[i:]
+      else:
+          env_var = match.group()[2:-1]
+          value2 += value[i:match.start()] + os.environ.get(env_var)
+          i = match.end()
+
+class EnvVarLoader(yaml.SafeLoader):
+    pass
+
+
+EnvVarLoader.add_implicit_resolver('!path', path_matcher2, None)
+EnvVarLoader.add_constructor('!path', path_constructor)
+
+
 def start_plugins(pcs):
     for pc in sort_plugin_configs(pcs):
         run_container(pc)
@@ -70,7 +96,7 @@ def remove_container(pc):
 
 
 def load_plugins_from_file(f):
-    return from_docker_compose(yaml.safe_load(f))
+    return from_docker_compose(yaml.load(f, Loader=EnvVarLoader))
 
 
 def load_plugins(init_plugin_path):
@@ -79,7 +105,12 @@ def load_plugins(init_plugin_path):
     for fn in os.listdir(init_plugin_path):
         if fn.endswith(".yml") or fn.endswith(".yaml"):
             with open(os.path.join(init_plugin_path, fn), "r") as f:
-                services, volumes = load_plugins_from_file(f)
+                content = f.read()
+                print(content)
+                sys.stdout.flush()
+                services, volumes = load_plugins_from_file(content)
+                print(services)
+                sys.stdout.flush()
                 pcs.extend(services)
                 vs.extend(volumes)
     return pcs, vs

@@ -201,6 +201,45 @@ def write_config(apcs, f):
     yaml.dump(to_docker_compose(apcs), f, default_flow_style=False)
 
 
+def test_run_container_from_init_env():
+    try:
+        apc = echo_pc
+        apcs = [apc]
+        init_plugin_path = "/plugin"
+        os.mkdir(init_plugin_path)
+        with open(f"{init_plugin_path}/echo.yaml", "w+") as f:
+            f.write('''
+services:
+  echo:
+    image: tx-router-test-flask-echo-server:${TAG}
+    environment: {}
+    port: 80
+    environment:
+      HOST: 0.0.0.0
+      PORT: "80"
+    volumes: []
+''')
+        os.environ["INIT_PLUGIN_PATH"] = init_plugin_path
+        os.environ["TAG"] = tag
+        plugin.init_plugin()
+        del os.environ["TAG"]
+        del os.environ["INIT_PLUGIN_PATH"]
+        assert bag_contains(plugin_config.get_plugin_configs({}), apcs)
+
+        container_name = apc["name"]
+
+        time.sleep(CLIENT_DELAY)
+        resp = requests.get("http://{host}/".format(host=container_name))
+
+        assert resp.status_code == 200
+        assert resp.json()["method"] == "GET"
+        shutil.rmtree(init_plugin_path)
+    finally:
+        plugin.stop_container(apc)
+        plugin.remove_container(apc)
+        plugin_config.delete_plugin_configs(apc)
+
+
 def test_run_container_from_init():
     try:
         apc = echo_pc
