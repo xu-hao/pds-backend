@@ -3,7 +3,6 @@
 # source all the variables in the docker environment file
 # to better simulate a more secure environment
 # and also make variables available to test code in python scripts
-export $(sed -e 's/=\(.*\)/="\1/g' -e 's/$/"/g' test/env.docker |grep -v "^#"| xargs)
 
 # get tag from this commit.
 # if there's no tag, use 'unstable' to tag the container on commits to master
@@ -11,7 +10,10 @@ TX_TAG=`git describe --exact-match --tags $(git log -n1 --pretty='%h')  2> /dev/
 if [ "${TX_TAG}" == "" ] ; then TX_TAG='unstable'; fi
 echo "TX_TAG=${TX_TAG}" > env.TAG
 
-export TX_TAG
+set -o allexport
+source env.TAG
+source test/env.docker
+set +o allexport
 
 # note that the environmenal variables set above
 # will override any .env variables
