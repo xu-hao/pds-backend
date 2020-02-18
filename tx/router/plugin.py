@@ -27,7 +27,7 @@ def path_constructor(loader, node):
           return value2 + value[i:]
       else:
           env_var = match.group()[2:-1]
-          value2 += value[i:match.start()] + os.environ.get(env_var)
+          value2 += value[i:match.start()] + os.environ[env_var]
           i = match.end()
 
 class EnvVarLoader(yaml.SafeLoader):

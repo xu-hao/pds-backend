@@ -28,6 +28,9 @@ services:
       MONGO_NON_ROOT_PASSWORD: ${MONGO_NON_ROOT_PASSWORD}
       INIT_PLUGIN_PATH: /plugin
       JWT_SECRET: ${JWT_SECRET}
+      TX_TAG: ${TX_TAG}
+    env_file:
+      - env.txrouter
     volumes:
       - ${DOCKER_SOCK}:/var/run/docker.sock
       - ${INIT_PLUGIN_PATH}:/plugin
