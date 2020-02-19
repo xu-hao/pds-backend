@@ -1,18 +1,28 @@
+import os
 import syslog
 import time
 import logging
 import requests
 from tx.dateutils.utils import tstostr
 from tx.router import plugin_config
+from tx.logging.utils import tx_log, timestamp
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
+logging_plugin = os.environ.get("LOGGING")
+def log(level, event, source, *args, **kwargs):
+    pc = plugin_config.get_plugin_config(logging_plugin)
+    if pc is None:
+        logger.log(logging.INFO, f"{level},{event},{timestamp},{source},{args},{kwargs}")
+    else:
+        tx_log("http://{host}:{port}/log".format(host=pc["name"], port=pc["port"]), level, event, source, *args, **kwargs)
 
 post_headers = {
     "Content-Type": "application/json",
     "Accept": "application/json"
 }
+
 def l(event, source):
     def function_wrapper(func):
         def function_wrapped(*args, **kwargs):
@@ -26,37 +36,5 @@ def l(event, source):
                 raise
         return function_wrapped
     return function_wrapper
-
-
-def to_json(data):
-    if data is None:
-        return None
-    if isinstance(data, dict):
-        return {k: to_json(v) for k, v in data.items()}
-    elif isinstance(data, list):
-        return [to_json(v) for v in data]
-    elif isinstance(data, int) or isinstance(data, float) or isinstance(data, bool) or isinstance(data, str):
-        return data
-    else:
-        return str(data)
-
-
-def log(level, event, timestamp, source,*args, **kwargs):
-    pc = plugin_config.get_plugin_config("logging")
-    if pc is None:
-        logger.log(logging.INFO, f"{level},{event},{timestamp},{source},{args},{kwargs}")
-    else:
-        requests.post("http://{host}:{port}/log".format(host=pc["name"], port=pc["port"]), headers=post_headers, json={
-            "event": event,
-            "level": str(level),
-            "timestamp": timestamp,
-            "source": source,
-            "args": to_json(args),
-            "kwargs": to_json(kwargs)
-        })
-    
-
-def timestamp():
-    return tstostr(time.time())
 
 
