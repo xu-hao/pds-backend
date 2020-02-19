@@ -29,6 +29,7 @@ services:
       INIT_PLUGIN_PATH: /plugin
       JWT_SECRET: ${JWT_SECRET}
       TX_TAG: ${TX_TAG}
+      LOGGING: ${LOGGING}
     env_file:
       - env.txrouter
     volumes:
