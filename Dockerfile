@@ -14,7 +14,8 @@ RUN pip3 install --no-cache-dir \
   docker \
   flask-cors \
   get_docker_secret==1.0.1 \
-  gunicorn[gevent]==19.9.0 \
+  gevent==1.4.0 \
+  gunicorn==19.9.0 \
   pymongo \
   python-dateutil \
   python-jose[cryptography]
