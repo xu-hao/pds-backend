@@ -72,9 +72,10 @@ def run_container(pc):
 
     def source(l):
         source = l["source"]
-        if not os.path.isabs(source):
-            source = os.path.join(hostcwd, source)
-        print("*****************" + source)
+        if os.sep in source:
+            if not os.path.isabs(source):
+                source = os.path.join(hostcwd, source)
+
         return source
 
     volumes = list(map(lambda l: Mount(l["target"], source(l), type=l["type"], read_only=l["read_only"]), pc.get("volumes", [])))
