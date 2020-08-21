@@ -7,7 +7,9 @@ RUN apk add \
   gcc \ 
   libffi-dev \
   musl-dev \
-  openssl-dev
+  openssl-dev \
+  file \
+  make
 
 RUN pip3 install --no-cache-dir \
   connexion \

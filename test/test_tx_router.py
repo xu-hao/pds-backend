@@ -197,6 +197,30 @@ def test_run_container_get():
             plugin.remove_container(apc)
 
 
+def test_run_container_get_relative_path():
+    host_cwd_mount = os.environ["HOST_CWD_MOUNT"]
+    with tempfile.TemporaryDirectory(prefix=os.path.join(host_cwd_mount, "")) as temp_dir_name:
+        _, basename = os.path.split(temp_dir_name)
+        os.chmod(temp_dir_name, 0o755)
+        s = "pds"
+        with open(os.path.join(temp_dir_name, "index.json"), "w+") as f:
+            f.write(json.dumps(s))
+
+        try:
+            apc = pc(basename)
+            plugin.run_container(apc)
+
+            container_name = apc["name"]
+
+            resp = requests.get("http://{host}/index.json".format(host=container_name))
+
+            assert resp.status_code == 200
+            assert resp.json() == s
+        finally:
+            plugin.stop_container(apc)
+            plugin.remove_container(apc)
+
+
 def write_config(apcs, f):
     yaml.dump(to_docker_compose(apcs), f, default_flow_style=False)
 

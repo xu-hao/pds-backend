@@ -28,6 +28,7 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       TX_TAG: ${TX_TAG}
       LOGGING: ${LOGGING}
+      HOST_CWD: ${PWD}
     env_file:
       - env.txrouter
     volumes:

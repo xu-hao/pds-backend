@@ -7,28 +7,31 @@ import yaml
 import sys
 import time
 import re
+import os.path
 from .plugin_config import add_plugin_configs, delete_plugin_configs, from_docker_compose, sort_plugin_configs
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
+hostcwd = os.environ.get("HOST_CWD", "")
 
 
 # from https://stackoverflow.com/questions/52412297/how-to-replace-environment-variable-value-in-yaml-file-to-be-parsed-using-python
 path_matcher2 = re.compile(r'.*\$\{([^}]+)\}.*')
 path_matcher = re.compile(r'\$\{([^}]+)\}')
+
 def path_constructor(loader, node):
-  ''' Extract the matched value, expand env variable, and replace the match '''
-  value = node.value
-  i = 0
-  value2 = ""
-  while True:
-      match = path_matcher.search(value, i)
-      if not match:
-          return value2 + value[i:]
-      else:
-          env_var = match.group()[2:-1]
-          value2 += value[i:match.start()] + os.environ[env_var]
-          i = match.end()
+    ''' Extract the matched value, expand env variable, and replace the match '''
+    value = node.value
+    i = 0
+    value2 = ""
+    while True:
+        match = path_matcher.search(value, i)
+        if not match:
+            return value2 + value[i:]
+        else:
+            env_var = match.group()[2:-1]
+            value2 += value[i:match.start()] + os.environ[env_var]
+            i = match.end()
 
 class EnvVarLoader(yaml.SafeLoader):
     pass
@@ -66,7 +69,15 @@ def network():
 def run_container(pc):
     name = pc["name"]
     client = docker.from_env()
-    volumes = list(map(lambda l: Mount(l["target"], l["source"], type=l["type"], read_only=l["read_only"]), pc.get("volumes", [])))
+
+    def source(l):
+        source = l["source"]
+        if not os.path.isabs(source):
+            source = os.path.join(hostcwd, source)
+        print("*****************" + source)
+        return source
+
+    volumes = list(map(lambda l: Mount(l["target"], source(l), type=l["type"], read_only=l["read_only"]), pc.get("volumes", [])))
     logging.info("pc = {0}".format(pc))
     logging.info(f"starting {name}")
     ret = client.containers.run(pc["image"], environment=pc.get("environment", {}), network=network(), mounts=volumes, detach=True, stdout=True, stderr=True, name=name, hostname=name)

@@ -7,12 +7,18 @@
 # get tag from this commit.
 # if there's no tag, use 'unstable' to tag the container on commits to master
 TX_TAG=`git describe --exact-match --tags $(git log -n1 --pretty='%h')  2> /dev/null; `
-if [ "${TX_TAG}" == "" ] ; then TX_TAG='unstable'; fi
-echo "TX_TAG=${TX_TAG}" > env.TAG
+
+function getTAG {
+    tag=unstable
+    docker build -t $(basename $(pwd)):$tag . 1>&2
+    echo $tag
+}
 
 set -o allexport
 source env.TAG
 source test/env.docker
+tx_router_tx_persistence_TAG=$(cd tx-persistence && getTAG)
+tx_router_TAG=$(getTAG)
 set +o allexport
 
 # note that the environmenal variables set above
