@@ -8,4 +8,4 @@ branches:
     - master
 
 script:
-  - test/test.sh
+  - hook/test
