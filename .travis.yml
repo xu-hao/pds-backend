@@ -7,10 +7,5 @@ branches:
     - v0.2.0
     - master
 
-addons:
-  apt:
-    packages:
-      - docker-ce
-      
 script:
   - bash hooks/test
