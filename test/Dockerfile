@@ -5,7 +5,7 @@ WORKDIR test
 
 RUN pip3 install \
   connexion \
-  docker \
+  docker==4.3.0 \
   get_docker_secret==1.0.1 \
   pymongo \
   pytest \

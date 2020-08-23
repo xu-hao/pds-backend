@@ -13,7 +13,7 @@ RUN apk add \
 
 RUN pip3 install --no-cache-dir \
   connexion \
-  docker \
+  docker==4.3.0 \
   flask-cors \
   get_docker_secret==1.0.1 \
   gevent==1.4.0 \

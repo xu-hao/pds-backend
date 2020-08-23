@@ -207,7 +207,7 @@ def test_run_container_get_relative_path():
             f.write(json.dumps(s))
 
         try:
-            apc = pc(basename)
+            apc = pc(f"./{basename}")
             plugin.run_container(apc)
 
             container_name = apc["name"]
