@@ -52,7 +52,7 @@ name2 = "nginx20"
 
 def pc(temp_dir_name):
     return {
-        "image": "nginx:1.17.4",
+        "image": "nginx:1.19.2",
         "environment": {},
         "name": name,
         "port": 80,
@@ -70,7 +70,7 @@ def pc(temp_dir_name):
 
 def pc2(temp_dir_name):
     return {
-        "image": "nginx:1.17.4",
+        "image": "nginx:1.19.2",
         "environment": {},
         "name": name2,
         "port": 80,

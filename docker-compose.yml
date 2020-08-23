@@ -26,7 +26,6 @@ services:
       MONGO_NON_ROOT_PASSWORD: ${MONGO_NON_ROOT_PASSWORD}
       INIT_PLUGIN_PATH: /plugin
       JWT_SECRET: ${JWT_SECRET}
-      TX_TAG: ${TX_TAG}
       LOGGING: ${LOGGING}
       HOST_CWD: ${PWD}
     env_file:
